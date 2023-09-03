@@ -5,7 +5,7 @@ const testingRoute: Route<ITestingRouterController> = {
     route: "/testing/all-data",
     method: RouterMethod.DELETE,
     controller: testingRouterController,
-    action: 'clearAll'
+    action: testingRouterController.clearAll
 }
 
 export const testingRoutes: Route<ITestingRouterController>[] = [

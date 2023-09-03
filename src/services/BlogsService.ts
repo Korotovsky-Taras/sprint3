@@ -6,30 +6,44 @@ import {
     IBlogService,
     PostViewModel
 } from "../types";
-import {blogsRepository, postsRepository} from "../repositories";
+import {PostsDto} from "../dto/posts.dto";
+import {BlogsDto} from "../dto/blogs.dto";
+import {IBlogsQueryRepository, IBlogsRepository, IPostsRepository} from "../types/repository";
+import {blogsQueryRepository, blogsRepository, postsRepository} from "../repositories";
 
 class BlogsService implements IBlogService {
-    async createBlog(model: BlogCreateModel): Promise<BlogViewModel> {
-        return blogsRepository.createBlog(model);
+    constructor(
+        private readonly postsRepo: IPostsRepository,
+        private readonly blogsRepo: IBlogsRepository,
+        private readonly blogsQueryRepo: IBlogsQueryRepository,
+    ) {
     }
+
+    async createBlog(model: BlogCreateModel): Promise<BlogViewModel> {
+        return this.blogsRepo.createBlog(model, BlogsDto.blog);
+    }
+
     async createPost(blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null> {
-        const blog: BlogViewModel | null = await blogsRepository.findBlogById(blogId);
+        const blog: BlogViewModel | null = await this.blogsQueryRepo.getBlogById(blogId, BlogsDto.blog);
         if (blog) {
-            return postsRepository.createPost({
+            return this.postsRepo.createPost({
                 title: model.title,
                 shortDescription: model.shortDescription,
                 content: model.content,
-                blogId: blog.id
-            }, blog);
+                blogId: blog.id,
+                blogName: blog.name
+            }, PostsDto.post)
         }
         return null;
     }
+
     async updateBlogById(blogId: string, model: BlogUpdateModel): Promise<boolean> {
-        return blogsRepository.updateBlogById(blogId, model)
+        return this.blogsRepo.updateBlogById(blogId, model)
     }
+
     async deleteBlogById(blogId: string): Promise<boolean> {
-        return blogsRepository.deleteBlogById(blogId)
+        return this.blogsRepo.deleteBlogById(blogId)
     }
 }
 
-export const blogsService = new BlogsService();
+export const blogsService = new BlogsService(postsRepository, blogsRepository, blogsQueryRepository);

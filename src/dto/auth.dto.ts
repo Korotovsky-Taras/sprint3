@@ -1,6 +1,4 @@
-import {UserMongoModel} from "../types";
 import {
-    AuthMeViewModel,
     AuthSessionDataModel,
     AuthSessionMongoModel,
     AuthSessionValidationModel,
@@ -8,13 +6,6 @@ import {
 } from "../types/login";
 
 export const AuthDto = {
-    user({_id, email, login}: UserMongoModel): AuthMeViewModel {
-        return {
-            email: email,
-            login: login,
-            userId: _id.toString(),
-        }
-    },
     validationSession({_id, uuid}: AuthSessionMongoModel): AuthSessionValidationModel {
         return {
             uuid,

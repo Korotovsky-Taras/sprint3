@@ -1,13 +1,13 @@
 import {NextFunction, Response} from "express";
-import {postsRepository} from "../repositories";
 import {
+    ICommentsService,
     IPostsRouterController,
+    IPostsService,
     PaginationQueryModel,
     ParamIdModel,
     Post,
     PostsCommentCreateModel,
     PostsCreateModel,
-    PostsListViewModel,
     PostsUpdateModel,
     PostViewModel,
     RequestWithBody,
@@ -15,25 +15,35 @@ import {
     RequestWithParamsBody,
     RequestWithParamsQuery,
     RequestWithQuery,
-    Status
+    Status,
+    WithPagination
 } from "../types";
 import {PostsDto} from "../dto/posts.dto";
-import {postsService} from "../services/PostsService";
-import {Comment, CommentListViewModel, CommentPaginationRepositoryModel, CommentViewModel} from "../types/comments";
-import {commentsRepository} from "../repositories/comments-repository";
+import {Comment, CommentPaginationRepositoryModel, CommentViewModel} from "../types/comments";
 import {CommentsDto} from "../dto/comments.dto";
 import {commentsService} from "../services/CommentsService";
+import {postsService} from "../services/PostsService";
+import {ICommentsQueryRepository, IPostsQueryRepository} from "../types/repository";
+import {commentsQueryRepository, postsQueryRepository} from "../repositories";
 
 
 class PostsRouterController implements IPostsRouterController {
 
-    async getAll(req: RequestWithQuery<PaginationQueryModel<Post>>, res: Response<PostsListViewModel>, next: NextFunction) {
-        const posts: PostsListViewModel = await postsRepository.getPosts({}, PostsDto.toRepoQuery(req.query));
+    constructor(
+        private readonly postsService: IPostsService,
+        private readonly commentsService: ICommentsService,
+        private readonly commentsQueryRepo: ICommentsQueryRepository,
+        private readonly postsQueryRepository: IPostsQueryRepository,
+    ) {
+    }
+
+    async getAll(req: RequestWithQuery<PaginationQueryModel<Post>>, res: Response<WithPagination<PostViewModel>>, next: NextFunction) {
+        const posts: WithPagination<PostViewModel> = await this.postsQueryRepository.getPosts({}, PostsDto.toRepoQuery(req.query), PostsDto.allPosts);
         return res.status(Status.OK).send(posts);
     }
 
     async getPost(req: RequestWithParamsBody<ParamIdModel, PostsCreateModel>, res: Response<PostViewModel | null>, next: NextFunction) {
-        const post: PostViewModel | null = await postsRepository.findPostById(req.params.id);
+        const post: PostViewModel | null = await this.postsQueryRepository.getPostById(req.params.id, PostsDto.post);
         if (post) {
             return res.status(Status.OK).send(post);
         }
@@ -41,7 +51,7 @@ class PostsRouterController implements IPostsRouterController {
     }
 
     async createPost(req: RequestWithBody<PostsCreateModel>, res: Response<PostViewModel>, next: NextFunction) {
-        const post: PostViewModel | null = await postsService.createPost(req.body);
+        const post: PostViewModel | null = await this.postsService.createPost(req.body);
         if (post) {
             return res.status(Status.CREATED).send(post);
         }
@@ -49,7 +59,7 @@ class PostsRouterController implements IPostsRouterController {
     }
 
     async updatePost(req: RequestWithParamsBody<ParamIdModel, PostsUpdateModel>, res: Response, next: NextFunction) {
-        const post = await postsService.updatePostById(req.params.id, req.body);
+        const post = await this.postsService.updatePostById(req.params.id, req.body);
         if (post) {
             return res.sendStatus(Status.NO_CONTENT);
         }
@@ -57,18 +67,18 @@ class PostsRouterController implements IPostsRouterController {
     }
 
     async deletePost(req: RequestWithParams<ParamIdModel>, res: Response, next: NextFunction) {
-        const isDeleted = await postsService.deletePostById(req.params.id);
+        const isDeleted = await this.postsService.deletePostById(req.params.id);
         if (isDeleted) {
             return res.sendStatus(Status.NO_CONTENT);
         }
         return res.sendStatus(Status.NOT_FOUND);
     }
 
-    async getComments(req: RequestWithParamsQuery<ParamIdModel, PaginationQueryModel<Comment>>, res: Response<CommentListViewModel>) {
+    async getComments(req: RequestWithParamsQuery<ParamIdModel, PaginationQueryModel<Comment>>, res: Response<WithPagination<CommentViewModel>>) {
         const query: CommentPaginationRepositoryModel = CommentsDto.toRepoQuery(req.query);
-        const post: PostViewModel | null = await postsRepository.findPostById(req.params.id);
+        const post: PostViewModel | null = await this.postsQueryRepository.getPostById(req.params.id, PostsDto.post);
         if (post) {
-            const comments: CommentListViewModel = await commentsRepository.getComments(req.params.id, query);
+            const comments: WithPagination<CommentViewModel> = await this.commentsQueryRepo.getComments({postId: req.params.id}, query, CommentsDto.allComments);
             return res.status(Status.OK).send(comments);
         }
         return res.sendStatus(Status.NOT_FOUND);
@@ -76,7 +86,7 @@ class PostsRouterController implements IPostsRouterController {
 
     async createComment(req: RequestWithParamsBody<ParamIdModel, PostsCommentCreateModel>, res: Response<CommentViewModel>) {
         if (req.userId) {
-            const comment: CommentViewModel | null = await commentsService.createComment(req.params.id, req.userId, req.body);
+            const comment: CommentViewModel | null = await this.commentsService.createComment(req.params.id, req.userId, req.body, CommentsDto.comment);
             if (comment) {
                 return res.status(Status.CREATED).send(comment);
             }
@@ -85,4 +95,4 @@ class PostsRouterController implements IPostsRouterController {
     }
 }
 
-export const postsRouterController = new PostsRouterController();
+export const postsRouterController = new PostsRouterController(postsService, commentsService, commentsQueryRepository, postsQueryRepository);

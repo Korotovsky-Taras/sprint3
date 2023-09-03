@@ -1,6 +1,7 @@
 import {withValidator} from "../utils/withValidator";
 import {checkSchema} from "express-validator";
-import {blogsRepository} from "../repositories";
+import {BlogsDto} from "../dto/blogs.dto";
+import {blogsQueryRepository} from "../repositories";
 
 export const postCreationValidator = withValidator(() => {
     return [
@@ -56,7 +57,7 @@ export const postUpdateWithIdValidator = withValidator(() => {
                 },
                 custom: {
                     options: async (blogId) => {
-                        const res = await blogsRepository.findBlogById(blogId);
+                        const res = await blogsQueryRepository.getBlogById(blogId, BlogsDto.blog);
                         if (res === null) {
                             throw Error("blog is not exist")
                         }
@@ -79,7 +80,7 @@ export const postCreationWithIdValidator = withValidator(() => {
                 },
                 custom: {
                     options: async (blogId) => {
-                        const res = await blogsRepository.findBlogById(blogId);
+                        const res = await blogsQueryRepository.getBlogById(blogId, BlogsDto.blog);
                         if (res === null) {
                             throw Error("blog is not exist")
                         }

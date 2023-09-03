@@ -1,6 +1,4 @@
 import {
-    CommentListMongoModel,
-    CommentListViewModel,
     CommentMongoModel,
     CommentPaginationQueryModel,
     CommentPaginationRepositoryModel,
@@ -25,14 +23,8 @@ export const CommentsDto = {
             createdAt: createdAt,
         }
     },
-    allComments(list: CommentListMongoModel): CommentListViewModel {
-        return {
-            pagesCount: list.pagesCount,
-            page: list.page,
-            pageSize: list.pageSize,
-            totalCount: list.totalCount,
-            items: list.items.map(CommentsDto.comment)
-        }
+    allComments(list: CommentMongoModel[]): CommentViewModel[] {
+        return list.map(CommentsDto.comment)
     },
     toRepoQuery(query: CommentPaginationQueryModel): CommentPaginationRepositoryModel {
         return {

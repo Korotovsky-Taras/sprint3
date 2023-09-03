@@ -1,2 +1,0 @@
-export {withMongoQueryFilterPagination} from './withMongoQueryFilterPagination';
-

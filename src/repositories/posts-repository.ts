@@ -1,64 +1,29 @@
-import {
-    BlogViewModel,
-    Post,
-    PostMongoModel,
-    PostPaginationRepositoryModel,
-    PostsCreateModel,
-    PostsListViewModel,
-    PostsUpdateModel,
-    PostViewModel
-} from "../types";
-import {withMongoLogger} from "../utils/withMongoLogger";
-import {postsCollection} from "../db";
-import {ObjectId} from "mongodb";
-import {PostsDto} from "../dto/posts.dto";
-import {withMongoQueryFilterPagination} from "./utils/";
-import {toIsoString} from "../utils/date";
+import {PostMongoModel, PostsCreateModel, PostsUpdateModel} from "../types";
+import {IPostsRepository} from "../types/repository";
+import {PostModel} from "./models/Post";
+import {HydratedDocument} from "mongoose";
+import {DeleteResult, ObjectId, UpdateResult} from "mongodb";
 
-export const postsRepository = {
-    async getPosts(filter: Partial<PostMongoModel>, query: PostPaginationRepositoryModel): Promise<PostsListViewModel> {
-        return withMongoLogger<PostsListViewModel>(async () => {
-            return withMongoQueryFilterPagination<Post, PostViewModel>(postsCollection, PostsDto.allPosts, filter, query);
-        });
-    },
-    async createPost(input: PostsCreateModel, blog: BlogViewModel): Promise<PostViewModel> {
-        return withMongoLogger<PostViewModel>(async () => {
-            const newPost: Post = {
-                title: input.title,
-                shortDescription: input.shortDescription,
-                content: input.content,
-                blogId: blog.id,
-                blogName: blog.name,
-                createdAt: toIsoString(new Date()),
-            }
-            const res = await postsCollection.insertOne(newPost);
-            return PostsDto.post({
-                _id: res.insertedId,
-                ...newPost,
-            });
-        });
-    },
-    async findPostById(id: string): Promise<PostViewModel | null> {
-        return withMongoLogger<PostViewModel | null>(async () => {
-            const post: PostMongoModel | null = await postsCollection.findOne({_id: new ObjectId(id)});
-            return post ? PostsDto.post(post) : null;
-        })
-    },
+class PostsRepository implements IPostsRepository {
+    async createPost<T>(input: PostsCreateModel, dto: (post: PostMongoModel) => T): Promise<T> {
+        const model : HydratedDocument<PostMongoModel> = PostModel.createPost(input)
+        const post: PostMongoModel = await model.save();
+        return dto(post);
+    }
     async updatePostById(id: string, input: PostsUpdateModel): Promise<boolean> {
-        return withMongoLogger<boolean>(async () => {
-            const result = await postsCollection.updateOne({_id: new ObjectId(id)}, {$set: input});
-            return result.matchedCount === 1;
-        })
-    },
+        const res: UpdateResult = await PostModel.updateOne({_id: new ObjectId(id)}, {$set: input}).exec();
+        return res.modifiedCount > 0;
+    }
     async deletePostById(id: string): Promise<boolean> {
-        return withMongoLogger<boolean>(async () => {
-            const result = await postsCollection.deleteOne({_id: new ObjectId(id)});
-            return result.deletedCount === 1;
-        })
-    },
+        const res: DeleteResult = await PostModel.deleteOne({_id: new ObjectId(id)}).exec();
+        return res.deletedCount > 0;
+    }
+    async saveDoc(doc: HydratedDocument<PostMongoModel>): Promise<void> {
+        await doc.save()
+    }
     async clear(): Promise<void> {
-        return withMongoLogger<void>(async () => {
-            await postsCollection.deleteMany({});
-        })
+        await PostModel.deleteMany({});
     }
 }
+
+export const postsRepository = new PostsRepository();

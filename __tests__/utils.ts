@@ -4,13 +4,13 @@ import {
     PostsCommentCreateModel,
     PostsCreateModel,
     PostViewModel,
-    UserCreateModel,
+    UserCreateRequestModel,
     UserViewModel
 } from "../src/types";
 import {agent, Response} from "supertest";
 import {app} from "../src/app";
 import {createAccessToken, verifyRefreshToken} from "../src/utils/tokenAdapter";
-import {CommentCreateModel, CommentViewModel} from "../src/types/comments";
+import {CommentCreateRequestModel, CommentViewModel} from "../src/types/comments";
 import setCookie from "set-cookie-parser";
 import {AuthRefreshTokenPayload} from "../src/types/login";
 import {UUID} from "crypto";
@@ -19,9 +19,9 @@ export const requestApp = agent(app);
 export const authBasic64 = Buffer.from("admin:qwerty").toString("base64");
 
 export type BlogCreationTestModel = BlogCreateModel;
-export type PostCreationTestModel = Omit<PostsCreateModel, 'blogId'>;
+export type PostCreationTestModel = Omit<PostsCreateModel, 'blogId' | 'blogName'>;
 export type CommentCreationTestModel = PostsCommentCreateModel;
-export type UserCreationTestModel = UserCreateModel;
+export type UserCreationTestModel = UserCreateRequestModel;
 
 export const validBlogData: BlogCreationTestModel = {
     name: "Taras",
@@ -112,14 +112,14 @@ export const createPost = async (blogId: string, model: PostCreationTestModel = 
     return result.body;
 }
 
-export const createUser = async (model: UserCreateModel) : Promise<UserViewModel> => {
+export const createUser = async (model: UserCreateRequestModel) : Promise<UserViewModel> => {
     const result = await requestApp
         .post("/users")
         .set('Authorization', 'Basic ' + authBasic64)
         .set('Content-Type', 'application/json')
         .send({
             ...model,
-        } as UserCreateModel);
+        } as UserCreateRequestModel);
     return result.body;
 }
 
@@ -151,6 +151,6 @@ export const createComment = async (postId: string, userId: string, model: Comme
         .set('Content-Type', 'application/json')
         .send({
             ...model
-        } as CommentCreateModel);
+        } as CommentCreateRequestModel);
     return result.body;
 }

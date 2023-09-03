@@ -1,5 +1,6 @@
 import {createNewUserModel, createUser, requestApp, UserCreationTestModel, wait,} from "./utils";
 import {Status, UserViewModel} from "../src/types";
+import {connectDisconnectDb, connectMongooseDb} from "../src/db";
 
 let userModel: UserCreationTestModel = createNewUserModel();
 let user: UserViewModel | null = null;
@@ -9,9 +10,14 @@ let userAgents = ["app1", "app2", "app3", "app4", "app5"];
 describe("security testing", () => {
 
     beforeAll(async () => {
+        await connectMongooseDb();
         await requestApp.delete("/testing/all-data");
         user = await createUser(userModel);
     })
+
+    afterAll(async () => {
+        await connectDisconnectDb();
+    });
 
     it("should not login by limiter", async () => {
 

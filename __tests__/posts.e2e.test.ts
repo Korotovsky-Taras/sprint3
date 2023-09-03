@@ -8,8 +8,9 @@ import {
     requestApp
 } from "./utils";
 import {BlogViewModel, PostViewModel, Status, UserViewModel} from "../src/types";
-import {CommentCreateModel, CommentViewModel} from "../src/types/comments";
+import {CommentCreateRequestModel, CommentViewModel} from "../src/types/comments";
 import {createAccessToken} from "../src/utils/tokenAdapter";
+import {connectDisconnectDb, connectMongooseDb} from "../src/db";
 
 let blog: BlogViewModel | null = null;
 let post: PostViewModel | null = null;
@@ -19,6 +20,7 @@ let comment: CommentViewModel | null = null;
 describe("posts testing", () => {
 
     beforeAll(async () => {
+        await connectMongooseDb();
         await requestApp.delete("/testing/all-data");
         blog = await createBlog();
         post = await createPost(blog.id);
@@ -27,6 +29,10 @@ describe("posts testing", () => {
             content: generateString(20)
         });
     })
+
+    afterAll(async () => {
+        await connectDisconnectDb();
+    });
 
     it("should create comment", async () => {
 
@@ -41,7 +47,7 @@ describe("posts testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     content: generateString(20)
-                } as CommentCreateModel)
+                } as CommentCreateRequestModel)
                 .expect(Status.CREATED);
         }
 
@@ -60,7 +66,7 @@ describe("posts testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     content: generateString(6)
-                } as CommentCreateModel)
+                } as CommentCreateRequestModel)
                 .expect(Status.BAD_REQUEST);
 
             await requestApp
@@ -69,7 +75,7 @@ describe("posts testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     content: generateString(400)
-                } as CommentCreateModel)
+                } as CommentCreateRequestModel)
                 .expect(Status.BAD_REQUEST);
         }
 
@@ -86,7 +92,7 @@ describe("posts testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     content: generateString(20)
-                } as CommentCreateModel)
+                } as CommentCreateRequestModel)
                 .expect(Status.UNATHORIZED);
 
         }
@@ -107,7 +113,7 @@ describe("posts testing", () => {
                 .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
                 .send({
                     content: generateString(20)
-                } as CommentCreateModel)
+                } as CommentCreateRequestModel)
                 .expect(Status.NOT_FOUND);
 
         }

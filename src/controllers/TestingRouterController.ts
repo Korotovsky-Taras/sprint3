@@ -1,18 +1,24 @@
 import {Request, Response} from "express";
-import {blogsRepository, postsRepository} from "../repositories";
 import {ITestingRouterController, Status} from "../types";
-import {usersRepository} from "../repositories/users-repository";
-import {commentsRepository} from "../repositories/comments-repository";
+import {IBlogsRepository, ICommentsRepository, IPostsRepository, IUsersRepository} from "../types/repository";
+import {blogsRepository, commentsRepository, postsRepository, usersRepository} from "../repositories";
 
 
 class TestingRouterController implements ITestingRouterController {
+    constructor(
+        private readonly blogsRepo: IBlogsRepository,
+        private readonly postsRepo: IPostsRepository,
+        private readonly usersRepo: IUsersRepository,
+        private readonly commentsRepo: ICommentsRepository,
+    ) {}
+
     async clearAll(req: Request, res: Response) {
-        await blogsRepository.clear();
-        await postsRepository.clear();
-        await usersRepository.clear();
-        await commentsRepository.clear();
+        await this.blogsRepo.clear();
+        await this.postsRepo.clear();
+        await this.usersRepo.clear();
+        await this.commentsRepo.clear();
         return res.sendStatus(Status.NO_CONTENT);
     }
 }
 
-export const testingRouterController = new TestingRouterController();
+export const testingRouterController = new TestingRouterController(blogsRepository, postsRepository, usersRepository, commentsRepository);

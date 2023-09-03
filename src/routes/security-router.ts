@@ -7,7 +7,7 @@ export const securityDevicesRoute: Route<ISecurityRouterController> = {
     route: "/security/devices",
     method: RouterMethod.GET,
     controller: securityRouterController,
-    action: 'getAll',
+    action: securityRouterController.getAll,
     middlewares: [
         authTokenRefreshValidation,
     ]
@@ -17,7 +17,7 @@ export const securityDeleteDeviceRoute: Route<ISecurityRouterController> = {
     route: "/security/devices/:id",
     method: RouterMethod.DELETE,
     controller: securityRouterController,
-    action: 'deleteDevice',
+    action: securityRouterController.deleteDevice,
     middlewares: [
         authTokenRefreshValidation,
     ]
@@ -27,7 +27,7 @@ export const securityDeleteAllRoute: Route<ISecurityRouterController> = {
     route: "/security/devices",
     method: RouterMethod.DELETE,
     controller: securityRouterController,
-    action: 'deleteAll',
+    action: securityRouterController.deleteAll,
     middlewares: [
         authTokenRefreshValidation,
     ]

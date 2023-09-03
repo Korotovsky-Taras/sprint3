@@ -1,11 +1,4 @@
-import {
-    BlogListMongoModel,
-    BlogListViewModel,
-    BlogMongoModel,
-    BlogPaginationQueryModel,
-    BlogPaginationRepositoryModel,
-    BlogViewModel
-} from "../types";
+import {BlogMongoModel, BlogPaginationQueryModel, BlogPaginationRepositoryModel, BlogViewModel} from "../types";
 import {
     withExternalDirection,
     withExternalNumber,
@@ -22,14 +15,8 @@ const initialQuery: BlogPaginationRepositoryModel = {
 }
 
 export const BlogsDto = {
-    allBlogs(list: BlogListMongoModel): BlogListViewModel {
-        return {
-            pagesCount: list.pagesCount,
-            page: list.page,
-            pageSize: list.pageSize,
-            totalCount: list.totalCount,
-            items: list.items.map(BlogsDto.blog)
-        }
+    allBlogs(items: BlogMongoModel[]): BlogViewModel[] {
+        return items.map(BlogsDto.blog)
     },
     blog({_id, name, description, websiteUrl, createdAt, isMembership}: BlogMongoModel): BlogViewModel {
         return {

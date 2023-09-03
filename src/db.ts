@@ -1,37 +1,34 @@
-import {MongoClient, ServerApiVersion} from "mongodb";
-import {Blog, Post, User} from "./types";
+import {ServerApiVersion} from "mongodb";
 import {appConfig} from "./utils/config";
-import {Comment} from "./types/comments";
-import {AuthConfirmation, AuthSession} from "./types/login";
+import mongoose, {ConnectOptions} from "mongoose";
 
 const {mongoUrl} = appConfig;
 
-const client = new MongoClient(mongoUrl, {
+let connectOptions = {
+    w: "majority",
+    retryWrites: true,
+    maxPoolSize: 20,
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
     }
-});
+};
 
-const db = client.db(process.env.NODE_ENV);
 
-export const blogsCollection = db.collection<Blog>("blogs");
-export const usersCollection = db.collection<User>("users");
-export const authSessionsCollection = db.collection<AuthSession>("authSession");
-export const authConfirmationCollection = db.collection<AuthConfirmation>("authConfirmation");
-
-export const postsCollection = db.collection<Post>("posts");
-export const commentsCollection = db.collection<Comment>("comments");
-
-export const connectDb = async () => {
+export const connectMongooseDb = async () => {
     try {
-        console.log("Mongodb connecting...");
-        await client.connect();
-        await client.db().command({ping: 1})
-        console.log("Mongodb connection status: ok");
+        console.log("Mongoose connecting... " + process.env.NODE_ENV);
+        await mongoose.connect(mongoUrl + "/" + process.env.NODE_ENV, connectOptions as ConnectOptions);
+
+        console.log("Mongoose connection status: ok");
     } catch (e: any) {
-        console.log("Mongodb connection error: " + e.message);
-        await client.close();
+        console.log("Mongoose connection error: " + e.message);
+        await connectDisconnectDb();
     }
+}
+
+export const connectDisconnectDb = async () => {
+    console.log("Mongoose disconnect!");
+    await mongoose.connection.close();
 }

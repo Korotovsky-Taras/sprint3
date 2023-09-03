@@ -20,15 +20,15 @@ export type AuthLogoutRepoModel = {
     deviceId: string,
 }
 
-export type AuthDeleteAllSessionsRepoModel = {
-    userId: string,
-    deviceId: string,
-}
-
 export type AuthRegisterModel = Pick<User, 'login' | 'email' > & { password: string }
 
 export type AuthRegisterConfirmationModel = {
     code: string
+}
+
+export type AuthNewPasswordCreationModel = {
+    newPassword: string,
+    recoveryCode: string
 }
 
 export type AuthResendingEmailModel = {
@@ -76,18 +76,6 @@ export type AuthTokens = {
     refreshToken: AuthRefreshToken,
 }
 
-export type AuthMeViewModel = {
-    email: string,
-    login: string,
-    userId: string
-}
-
-export type AuthConfirmation = {
-    userId: string,
-    expiredIn: string,
-    code: string,
-}
-
 export type AuthSession = {
     userId: string,
     uuid: string,
@@ -96,6 +84,10 @@ export type AuthSession = {
     lastActiveDate: string,
 }
 
+export type AuthSessionCreateModel = Pick<AuthSession, "userId" | "uuid" | "ip" | "userAgent" | "lastActiveDate"> & {deviceId: string}
+
+export type AuthSessionRemoveModel = Pick<AuthSession, "userId"> & {deviceId: string}
+
 export type AuthSessionMongoModel = WithId<AuthSession>;
 
 export type AuthSessionValidationModel = Pick<AuthSession, "uuid" > & {deviceId: string};
@@ -103,5 +95,3 @@ export type AuthSessionValidationModel = Pick<AuthSession, "uuid" > & {deviceId:
 export type AuthSessionViewModel = Pick<AuthSession, "ip" | "lastActiveDate"> & {title: string, deviceId: string};
 
 export type AuthSessionDataModel = Pick<AuthSession, "uuid" | "userId"> & {deviceId: string};
-
-export type AuthConfirmationMongoModel = WithId<AuthConfirmation>;

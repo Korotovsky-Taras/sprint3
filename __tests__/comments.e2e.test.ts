@@ -9,8 +9,9 @@ import {
     validCommentData
 } from "./utils";
 import {BlogViewModel, ErrorsMessage, PostViewModel, Status, UserViewModel} from "../src/types";
-import {CommentCreateModel, CommentUpdateModel, CommentViewModel} from "../src/types/comments";
+import {CommentCreateRequestModel, CommentUpdateModel, CommentViewModel} from "../src/types/comments";
 import {createAccessToken} from "../src/utils/tokenAdapter";
+import {connectDisconnectDb, connectMongooseDb} from "../src/db";
 
 
 let blog: BlogViewModel | null = null;
@@ -21,11 +22,16 @@ let comment: CommentViewModel | null = null;
 describe("comments testing", () => {
 
     beforeAll(async () => {
+        await connectMongooseDb();
         await requestApp.delete("/testing/all-data");
         blog = await createBlog();
         post = await createPost(blog.id);
         user = await createUser(createNewUserModel());
     })
+
+    afterAll(async () => {
+        await connectDisconnectDb();
+    });
 
     it("should not create comment", async () => {
 
@@ -39,14 +45,14 @@ describe("comments testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     ...validCommentData
-                } as CommentCreateModel)
+                } as CommentCreateRequestModel)
                 .expect(Status.UNATHORIZED);
 
             const result = await requestApp
                 .post(`/posts/${post.id}/comments`)
                 .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
                 .set('Content-Type', 'application/json')
-                .send({} as CommentCreateModel)
+                .send({} as CommentCreateRequestModel)
                 .expect(Status.BAD_REQUEST);
 
             expect(result.body).toEqual({

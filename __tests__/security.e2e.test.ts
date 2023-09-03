@@ -13,6 +13,7 @@ import {Status, UserViewModel} from "../src/types";
 import {createRefreshToken, verifyRefreshToken} from "../src/utils/tokenAdapter";
 import {AuthRefreshTokenPayload} from "../src/types/login";
 import {randomUUID, UUID} from "crypto";
+import {connectDisconnectDb, connectMongooseDb} from "../src/db";
 
 let userModel1: UserCreationTestModel = createNewUserModel();
 let userModel2: UserCreationTestModel = createNewUserModel();
@@ -40,12 +41,17 @@ function getUser1Session(index: number) : SessionUnit {
 describe("security testing", () => {
 
     beforeAll(async () => {
+        await connectMongooseDb();
         await requestApp.delete("/testing/all-data");
         user1 = await createUser(userModel1);
         user2 = await createUser(userModel2);
         user1Sessions.length = 0;
         user2Sessions.length = 0;
     })
+
+    afterAll(async () => {
+        await connectDisconnectDb();
+    });
 
     it("should login user on 4 devices", async () => {
 

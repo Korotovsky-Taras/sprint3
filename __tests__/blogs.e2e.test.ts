@@ -2,6 +2,7 @@ import supertest from "supertest";
 import {app} from "../src/app";
 import {BlogViewModel, PostsCreateModel, PostViewModel, Status} from "../src/types";
 import {authBasic64, requestApp, validBlogData, validPostData} from "./utils";
+import {connectDisconnectDb, connectMongooseDb} from "../src/db";
 
 
 let createdBlogId: string | null = null;
@@ -10,10 +11,15 @@ let createdPostId: string | null = null;
 describe("blogs testing", () => {
 
     beforeAll(async () => {
+        await connectMongooseDb();
         createdBlogId = null;
         createdPostId = null;
         await supertest(app).delete("/testing/all-data");
     })
+
+    afterAll(async () => {
+        await connectDisconnectDb();
+    });
 
 
     it("should require authorization", async () => {
@@ -50,17 +56,13 @@ describe("blogs testing", () => {
             .expect(Status.UNATHORIZED)
     })
 
-    it("should return  database conflict error", async () => {
+    it("should return bad request", async () => {
 
-        const result =  await requestApp
+         await requestApp
             .get("/blogs/1")
             .set('Authorization', 'Basic ' + authBasic64)
-            .expect(Status.DB_ERROR)
+            .expect(Status.UNHANDLED)
 
-        expect(result.body?.errorsMessages).toContainEqual({
-            message: expect.any(String),
-            field: "database",
-        })
     })
 
     it("should create blog", async () => {

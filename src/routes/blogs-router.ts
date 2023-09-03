@@ -9,28 +9,28 @@ export const blogsRoute: Route<IBlogsRouterController> = {
     route: "/blogs",
     method: RouterMethod.GET,
     controller: blogsRouterController,
-    action: 'getAll',
+    action: blogsRouterController.getAll,
 }
 
 const blogSingleRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id",
     method: RouterMethod.GET,
     controller: blogsRouterController,
-    action: 'getBlog',
+    action: blogsRouterController.getBlog,
 }
 
 const blogPostsRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id/posts",
     method: RouterMethod.GET,
     controller: blogsRouterController,
-    action: 'getBlogPosts',
+    action: blogsRouterController.getBlogPosts,
 }
 
 const blogPostCreationRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id/posts",
     method: RouterMethod.POST,
     controller: blogsRouterController,
-    action: 'createBlogPost',
+    action: blogsRouterController.createBlogPost,
     middlewares: [
         authBasicValidation,
         postCreationValidator
@@ -41,7 +41,7 @@ const blogSingleUpdateRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id",
     method: RouterMethod.PUT,
     controller: blogsRouterController,
-    action: 'updateBlog',
+    action: blogsRouterController.updateBlog,
     middlewares: [
         authBasicValidation,
         blogsCreationValidator
@@ -52,7 +52,7 @@ const blogsCreationRoute: Route<IBlogsRouterController> = {
     route: "/blogs",
     method: RouterMethod.POST,
     controller: blogsRouterController,
-    action: 'createBlog',
+    action: blogsRouterController.createBlog,
     middlewares: [
         authBasicValidation,
         blogsCreationValidator
@@ -63,7 +63,7 @@ const blogsDeletingRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id",
     method: RouterMethod.DELETE,
     controller: blogsRouterController,
-    action: 'deleteBlog',
+    action: blogsRouterController.deleteBlog,
     middlewares: [
         authBasicValidation,
     ]

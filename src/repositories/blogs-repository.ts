@@ -1,67 +1,29 @@
-import {
-    Blog,
-    BlogCreateModel,
-    BlogListViewModel,
-    BlogMongoModel,
-    BlogPaginationRepositoryModel,
-    BlogUpdateModel,
-    BlogViewModel
-} from "../types";
-import {blogsCollection} from "../db";
-import {withMongoLogger} from "../utils/withMongoLogger";
-import {Filter, ObjectId} from "mongodb";
-import {BlogsDto} from "../dto/blogs.dto";
-import {withMongoQueryFilterPagination} from "./utils";
-import {toIsoString} from "../utils/date";
+import {BlogCreateModel, BlogMongoModel, BlogUpdateModel} from "../types";
+import {BlogModel} from "./models/Blog";
+import {HydratedDocument} from "mongoose";
+import {IBlogsRepository} from "../types/repository";
+import {DeleteResult, ObjectId, UpdateResult} from "mongodb";
 
-
-export const blogsRepository = {
-    async getBlogs(query: BlogPaginationRepositoryModel): Promise<BlogListViewModel> {
-        return withMongoLogger<BlogListViewModel>(async () => {
-
-            let filter: Filter<Blog> = {};
-            if (query.searchNameTerm != null) {
-                filter.name = {$regex: query.searchNameTerm, $options: "i" }
-            }
-
-            return withMongoQueryFilterPagination<Blog, BlogViewModel>(blogsCollection, BlogsDto.allBlogs, filter, query)
-        })
-    },
-    async createBlog(input: BlogCreateModel): Promise<BlogViewModel> {
-        return withMongoLogger<BlogViewModel>(async () => {
-            const newBlog: Blog = {
-                ...input,
-                createdAt: toIsoString(new Date()),
-                isMembership: false,
-            }
-            const res = await blogsCollection.insertOne(newBlog);
-            return BlogsDto.blog({
-                _id: res.insertedId,
-                ...newBlog,
-            });
-        })
-    },
-    async findBlogById(id: string): Promise<BlogViewModel | null> {
-        return withMongoLogger<BlogViewModel | null>(async () => {
-            const blog: BlogMongoModel | null = await blogsCollection.findOne({_id: new ObjectId(id)})
-            return blog ? BlogsDto.blog(blog) : null;
-        })
-    },
+class BlogsRepository implements IBlogsRepository {
+    async createBlog<T>(input: BlogCreateModel, dto: (blog: BlogMongoModel) => T): Promise<T> {
+        const model : HydratedDocument<BlogMongoModel> = BlogModel.createBlog(input);
+        const blog: BlogMongoModel = await model.save();
+        return dto(blog);
+    }
     async updateBlogById(id: string, input: BlogUpdateModel): Promise<boolean> {
-        return withMongoLogger<boolean>(async () => {
-            const result = await blogsCollection.updateOne({_id: new ObjectId(id)}, { $set : input});
-            return result.matchedCount === 1;
-        })
-    },
+        const res: UpdateResult = await BlogModel.updateOne({_id: new ObjectId(id)},{$set: input}).exec();
+        return res.modifiedCount > 0;
+    }
     async deleteBlogById(id: string): Promise<boolean> {
-        return withMongoLogger<boolean>(async () => {
-            const result = await blogsCollection.deleteOne({_id: new ObjectId(id)});
-            return result.deletedCount === 1;
-        })
-    },
+        const res: DeleteResult = await BlogModel.deleteOne({_id: new ObjectId(id)}).exec();
+        return res.deletedCount > 0;
+    }
+    async saveDoc(doc: HydratedDocument<BlogMongoModel>): Promise<void> {
+        await doc.save()
+    }
     async clear(): Promise<void> {
-        return withMongoLogger<void>(async () => {
-            await blogsCollection.deleteMany({});
-        })
+        await BlogModel.deleteMany({});
     }
 }
+
+export const blogsRepository = new BlogsRepository();

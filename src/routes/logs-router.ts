@@ -5,14 +5,14 @@ export const logsRoute: Route<ILogsRouterController> = {
     route: "/logs",
     method: RouterMethod.GET,
     controller: logsRouterController,
-    action: 'getAll',
+    action: logsRouterController.getAll,
 }
 
 export const clearLogsRoute: Route<ILogsRouterController> = {
     route: "/logs",
     method: RouterMethod.DELETE,
     controller: logsRouterController,
-    action: 'deleteAll',
+    action: logsRouterController.deleteAll,
 }
 
 export const logsRoutes: Route<ILogsRouterController>[] = [

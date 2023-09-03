@@ -1,11 +1,4 @@
-import {
-    PostMongoModel,
-    PostPaginationQueryModel,
-    PostPaginationRepositoryModel,
-    PostsListMongoModel,
-    PostsListViewModel,
-    PostViewModel
-} from "../types";
+import {PostMongoModel, PostPaginationQueryModel, PostPaginationRepositoryModel, PostViewModel} from "../types";
 import {withExternalDirection, withExternalNumber, withExternalString,} from "../utils/withExternalQuery";
 
 const initialQuery: PostPaginationRepositoryModel = {
@@ -16,14 +9,8 @@ const initialQuery: PostPaginationRepositoryModel = {
 }
 
 export const PostsDto = {
-    allPosts(list: PostsListMongoModel): PostsListViewModel {
-        return {
-            pagesCount: list.pagesCount,
-            page: list.page,
-            pageSize: list.pageSize,
-            totalCount: list.totalCount,
-            items: list.items.map(PostsDto.post)
-        }
+    allPosts(items: PostMongoModel[]): PostViewModel[] {
+        return items.map(PostsDto.post)
     },
     post({ _id, title, shortDescription, content, blogId, blogName, createdAt }: PostMongoModel): PostViewModel {
         return {

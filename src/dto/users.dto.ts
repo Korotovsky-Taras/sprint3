@@ -1,6 +1,5 @@
 import {
-    UserListMongoModel,
-    UserListViewModel,
+    UserMeViewModel,
     UserMongoModel,
     UserPaginationQueryModel,
     UserPaginationRepositoryModel,
@@ -24,13 +23,11 @@ const initialQuery: UserPaginationRepositoryModel = {
 }
 
 export const UsersDto = {
-    allUsers(list: UserListMongoModel): UserListViewModel {
+    me({_id, login, email}: UserMongoModel): UserMeViewModel {
         return {
-            pagesCount: list.pagesCount,
-            page: list.page,
-            pageSize: list.pageSize,
-            totalCount: list.totalCount,
-            items: list.items.map(UsersDto.user)
+            userId: _id.toString(),
+            login,
+            email,
         }
     },
     user({_id, login, email, createdAt}: UserMongoModel): UserViewModel {
@@ -41,11 +38,14 @@ export const UsersDto = {
             createdAt,
         }
     },
-    userWithConfirmation(userModel: UserMongoModel, confirmationCode: string): UserWithConfirmedViewModel {
+    allUsers(list: UserMongoModel[]): UserViewModel[] {
+        return list.map(UsersDto.user)
+    },
+    userWithAuthConfirmation(userModel: UserMongoModel): UserWithConfirmedViewModel {
         return {
             ...UsersDto.user(userModel),
-            confirmed: userModel.confirmed,
-            confirmationCode: confirmationCode,
+            confirmed: userModel.authConfirmation.confirmed,
+            confirmationCode: userModel.authConfirmation.code,
         }
     },
     toRepoQuery(query: UserPaginationQueryModel): UserPaginationRepositoryModel {

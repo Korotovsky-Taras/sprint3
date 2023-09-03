@@ -1,8 +1,9 @@
 import {withValidator} from "../utils/withValidator";
 import {checkSchema} from "express-validator";
-import {usersRepository} from "../repositories/users-repository";
 import {UserWithConfirmedViewModel} from "../types";
 import {userCreateValidation} from "./user-create-validation";
+import {UsersDto} from "../dto/users.dto";
+import {usersQueryRepository} from "../repositories";
 
 
 export const authEmailValidation = withValidator(() => {
@@ -35,9 +36,11 @@ export const authCodeValidation = withValidator(() => {
                 },
                 custom: {
                     options: async (code) => {
-                        const isCodeValid = await usersRepository.isConfirmationCodeValid(code);
-                        if (!isCodeValid) {
+                        const result = await usersQueryRepository.getAuthConfirmationValidation(code);
+                        if (!result || result.isConfirmed) {
                             throw Error("code is not valid")
+                        } else if (result.isExpired) {
+                            throw Error("code is expired")
                         }
                     },
                 },
@@ -55,7 +58,7 @@ export const authEmailResendingValidation = withValidator(() => {
                 trim: true,
                 custom: {
                     options: async (email) => {
-                        const user: UserWithConfirmedViewModel | null = await usersRepository.getUserWithConfirmationByEmail(email);
+                        const user: UserWithConfirmedViewModel | null = await usersQueryRepository.getUserByFilter({email}, UsersDto.userWithAuthConfirmation);
                         if (!user) {
                             throw Error("email doesnt exist")
                         } else if (user.confirmed) {
@@ -77,7 +80,7 @@ export const authRegistrationValidation = withValidator(() => {
                 trim: true,
                 custom: {
                     options: async (login) => {
-                        const user = await usersRepository.getUserByLogin(login);
+                        const user = await usersQueryRepository.getUserByFilter({login}, UsersDto.user);
                         if (user) {
                             throw Error("login already in use")
                         }
@@ -91,7 +94,7 @@ export const authRegistrationValidation = withValidator(() => {
                 trim: true,
                 custom: {
                     options: async (email) => {
-                        const user: UserWithConfirmedViewModel | null = await usersRepository.getUserWithConfirmationByEmail(email);
+                        const user = await usersQueryRepository.getUserByFilter({email}, UsersDto.user);
                         if (user) {
                             throw Error("email already exist")
                         }

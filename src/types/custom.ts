@@ -31,6 +31,11 @@ export type WithPaginationQuery<T> = {
     pageSize: number
 };
 
+export type WithPaginationResult<T> = {
+    totalCount: number,
+    items: T[],
+};
+
 export type WithPagination<T> = {
     pagesCount: number,
     page: number,
@@ -74,8 +79,8 @@ export type RouteMiddleware = (req: Request, res: Response,  next: NextFunction)
 export interface Route<T> {
     route: string,
     method: RouterMethod;
-    controller: T;
-    action: keyof T;
+    controller: T,
+    action: (req: Request<any>, res: Response<any>,  next: NextFunction) => Promise<Response>; //TODO надо связать action c controller
     middlewares?: RouteMiddleware[]
 }
 

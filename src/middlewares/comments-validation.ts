@@ -9,7 +9,7 @@ export const commentCreateValidator = withValidator(() => {
                 trim: true,
                 isLength: {
                     options: {min: 20, max: 300},
-                    errorMessage: "length should be > 0"
+                    errorMessage: "length should be > 20 < 300"
                 },
             }
         }),

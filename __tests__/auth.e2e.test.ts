@@ -1,6 +1,7 @@
 import {createCookie, createNewUserModel, createUser, extractCookie, requestApp, UserCreationTestModel,} from "./utils";
 import {Status, UserViewModel} from "../src/types";
 import {Response} from "supertest";
+import {connectDisconnectDb, connectMongooseDb} from "../src/db";
 
 let userModel: UserCreationTestModel = createNewUserModel();
 let user: UserViewModel | null = null;
@@ -9,10 +10,15 @@ let refreshToken: string | null = null;
 describe("auth testing", () => {
 
     beforeAll(async () => {
+        await connectMongooseDb();
         await requestApp.delete("/testing/all-data");
         user = await createUser(userModel);
         refreshToken = null;
     })
+
+    afterAll(async () => {
+        await connectDisconnectDb();
+    });
 
     it("should return accessToken ", async () => {
 

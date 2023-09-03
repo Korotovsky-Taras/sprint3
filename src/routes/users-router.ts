@@ -8,14 +8,14 @@ export const usersAllRoute: Route<IUsersRouterController> = {
     route: "/users",
     method: RouterMethod.GET,
     controller: usersRouterController,
-    action: 'getAll',
+    action: usersRouterController.getAll,
 }
 
 export const userCreateRoute: Route<IUsersRouterController> = {
     route: "/users",
     method: RouterMethod.POST,
     controller: usersRouterController,
-    action: 'createUser',
+    action: usersRouterController.createUser,
     middlewares: [
         authBasicValidation,
         userCreateValidation
@@ -26,7 +26,7 @@ export const usersDeleteRoute: Route<IUsersRouterController> = {
     route: "/users/:id",
     method: RouterMethod.DELETE,
     controller: usersRouterController,
-    action: 'deleteUser',
+    action: usersRouterController.deleteUser,
     middlewares: [
         authBasicValidation,
     ]

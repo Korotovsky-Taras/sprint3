@@ -1,5 +1,5 @@
 {
-  "name": "sprint1_blogs",
+  "name": "sprint3",
   "version": "1.0.0",
   "description": "backend learning",
   "main": "index.ts",
@@ -12,12 +12,12 @@
   "author": "Korotovskiy Taras",
   "license": "ISC",
   "dependencies": {
-    "@types/set-cookie-parser": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
     "mongodb": "^5.6.0",
+    "mongoose": "^7.4.5",
     "nodemailer": "^6.9.4",
     "set-cookie-parser": "^2.6.0"
   },
@@ -27,6 +27,7 @@
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
     "@types/nodemailer": "^6.4.9",
+    "@types/set-cookie-parser": "^2.4.3",
     "@types/supertest": "^2.0.12",
     "jest": "^29.5.0",
     "nodemon": "^2.0.22",

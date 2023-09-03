@@ -1,21 +1,32 @@
-import {IAuthRouterController, RequestWithBody, Status} from "../types";
+import {IAuthRouterController, IUsersService, RequestWithBody, Status, UserMeViewModel} from "../types";
 import {NextFunction, Request, Response} from "express";
-import {authService} from "../services/AuthService";
 import {
     AuthLoginReqModel,
-    AuthMeViewModel,
+    AuthNewPasswordCreationModel,
     AuthRegisterConfirmationModel,
     AuthRegisterModel,
     AuthServiceResultModel,
     AuthTokens
 } from "../types/login";
 import {authHelper} from "../managers/authHelper";
+import {UsersDto} from "../dto/users.dto";
+import {usersService} from "../services/UsersService";
+import {IAuthSessionQueryRepository, IUsersQueryRepository} from "../types/repository";
+import {authSessionQueryRepository, usersQueryRepository} from "../repositories";
 
 
-class AuthRouterController implements IAuthRouterController {
+export class AuthRouterController implements IAuthRouterController {
+
+    constructor(
+        private readonly userService: IUsersService,
+        private readonly authQueryRepo: IAuthSessionQueryRepository,
+        private readonly userQueryRepo: IUsersQueryRepository,
+    ) {
+    }
+
     async login(req: RequestWithBody<AuthLoginReqModel>, res: Response, next: NextFunction) {
 
-        const auth: AuthTokens | null = await authService.login({
+        const auth: AuthTokens | null = await this.userService.login({
             loginOrEmail: req.body.loginOrEmail,
             password: req.body.password,
             userAgent: authHelper.getUserAgent(req),
@@ -33,7 +44,7 @@ class AuthRouterController implements IAuthRouterController {
 
     async logout(req: Request, res: Response, next: NextFunction) {
         if (req.userId && req.deviceId) {
-            const isLogout: boolean = await authService.logout({
+            const isLogout: boolean = await this.userService.logout({
                 userId: req.userId,
                 deviceId: req.deviceId,
             });
@@ -47,7 +58,7 @@ class AuthRouterController implements IAuthRouterController {
 
     async refreshToken(req: Request, res: Response, next: NextFunction) {
         if (req.userId && req.deviceId) {
-            const auth: AuthTokens | null = await authService.refreshTokens({
+            const auth: AuthTokens | null = await this.userService.refreshTokens({
                 userId: req.userId,
                 deviceId: req.deviceId,
                 userAgent: authHelper.getUserAgent(req),
@@ -63,19 +74,19 @@ class AuthRouterController implements IAuthRouterController {
         return res.sendStatus(Status.UNATHORIZED)
     }
 
-    async me(req: Request, res: Response<AuthMeViewModel>, next: NextFunction) {
+    async me(req: Request, res: Response<UserMeViewModel>, next: NextFunction) {
         if (req.userId) {
-            const model: AuthMeViewModel | null = await authService.getAuthUserById(req.userId);
+            const user: UserMeViewModel | null = await this.userQueryRepo.getUserById(req.userId, UsersDto.me);
 
-            if (model) {
-                return res.status(Status.OK).send(model)
+            if (user) {
+                return res.status(Status.OK).send(user)
             }
         }
         return res.sendStatus(Status.UNATHORIZED)
     }
 
     async registration(req: RequestWithBody<AuthRegisterModel>, res: Response, next: NextFunction) {
-        const result: AuthServiceResultModel = await authService.registerUser(req.body);
+        const result: AuthServiceResultModel = await this.userService.registerUser(req.body);
         if (result.success) {
             return res.sendStatus(Status.NO_CONTENT)
         }
@@ -83,7 +94,7 @@ class AuthRouterController implements IAuthRouterController {
     }
 
     async registrationConfirmation(req: RequestWithBody<AuthRegisterConfirmationModel>, res: Response, next: NextFunction) {
-        const result: AuthServiceResultModel = await authService.verifyConfirmationCode(req.body);
+        const result: AuthServiceResultModel = await this.userService.verifyConfirmationCode(req.body);
         if (result.success) {
             return res.sendStatus(Status.NO_CONTENT)
         }
@@ -91,12 +102,22 @@ class AuthRouterController implements IAuthRouterController {
     }
 
     async registrationEmailResending(req: Request, res: Response, next: NextFunction) {
-        const result: AuthServiceResultModel = await authService.tryResendConfirmationCode(req.body);
-        if (result.success) {
+        await this.userService.tryResendConfirmationCode(req.body);
+        return res.sendStatus(Status.NO_CONTENT)
+    }
+
+    async passwordRecovery(req: Request, res: Response, next: NextFunction) {
+        await this.userService.tryResendPasswordRecoverCode(req.body);
+        return res.sendStatus(Status.NO_CONTENT)
+    }
+
+    async recoverPasswordWithConfirmationCode(req: RequestWithBody<AuthNewPasswordCreationModel>, res: Response, next: NextFunction) {
+        const isUpdated: boolean = await this.userService.recoverPasswordWithConfirmationCode(req.body);
+        if (isUpdated) {
             return res.sendStatus(Status.NO_CONTENT)
         }
-        return res.sendStatus(Status.BAD_REQUEST);
+        return res.sendStatus(Status.BAD_REQUEST)
     }
 }
 
-export const authRouterController = new AuthRouterController();
+export const authRouterController = new AuthRouterController(usersService, authSessionQueryRepository, usersQueryRepository);

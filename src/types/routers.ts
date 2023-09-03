@@ -1,4 +1,9 @@
 import {NextFunction, Request, Response} from "express";
+import {IService} from "./services";
+
+export class BaseController<T extends IService> {
+    constructor(public service: T) {}
+}
 
 export interface IBlogsRouterController {
     getAll(req: Request, res: Response, next: NextFunction): Promise<Response>,
@@ -36,6 +41,8 @@ export interface IAuthRouterController {
     registration(req: Request, res: Response, next: NextFunction): Promise<Response>,
     registrationConfirmation(req: Request, res: Response, next: NextFunction): Promise<Response>,
     registrationEmailResending(req: Request, res: Response, next: NextFunction): Promise<Response>,
+    passwordRecovery(req: Request, res: Response, next: NextFunction): Promise<Response>,
+    recoverPasswordWithConfirmationCode(req: Request, res: Response, next: NextFunction): Promise<Response>,
     me(req: Request, res: Response, next: NextFunction): Promise<Response>,
 }
 
@@ -56,3 +63,4 @@ export interface ICommentsRouterController {
     updateComment(req: Request, res: Response, next: NextFunction): Promise<Response>,
     deleteComment(req: Request, res: Response, next: NextFunction): Promise<Response>,
 }
+

@@ -1,8 +1,9 @@
-import {Collection, Filter, WithId} from "mongodb";
+import {Collection, Document, Filter, WithId} from "mongodb";
 import {WithPagination, WithPaginationQuery} from "../../types";
-import {Document} from "bson";
 
 /**
+ * @Deprecated - перейти на Model и использовать withModelPagination
+ *
  * Общий метод для получения значений по фильтру с пагинацией
  * @param collection - коллекция типа T
  * @param dto - формат вывода данных с коллекции по типу O

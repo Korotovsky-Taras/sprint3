@@ -1,10 +1,10 @@
 import {app} from './app'
-import {connectDb} from "./db";
+import {connectMongooseDb} from "./db";
 import {appConfig} from "./utils/config";
 
 const {port} = appConfig;
 
 app.listen(port, async () => {
-    await connectDb();
+    await connectMongooseDb();
     console.log(`App is running on port: ${port}`)
 })

@@ -8,14 +8,14 @@ export const commentSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.GET,
     controller: commentsRouterController,
-    action: 'getComment',
+    action: commentsRouterController.getComment,
 }
 
 export const deleteSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.DELETE,
     controller: commentsRouterController,
-    action: 'deleteComment',
+    action: commentsRouterController.deleteComment,
     middlewares: [
         authTokenAccessValidation
     ]
@@ -25,7 +25,7 @@ export const updateSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.PUT,
     controller: commentsRouterController,
-    action: 'updateComment',
+    action: commentsRouterController.updateComment,
     middlewares: [
         authTokenAccessValidation,
         commentUpdateValidator
