@@ -6,11 +6,15 @@ import {Log} from "./logs";
 import {PostMongoModel, PostPaginationRepositoryModel, PostsCreateModel, PostsUpdateModel} from "./posts";
 import {CommentMongoModel, CommentPaginationRepositoryModel, CommentUpdateModel} from "./comments";
 import {FilterQuery, HydratedDocument} from "mongoose";
+import {ICommentMethods} from "../repositories/models/Comment";
 
 
 export interface IRepository<T> {
     clear(): Promise<void>
     saveDoc(doc: HydratedDocument<T>): Promise<void>
+}
+
+export interface IQueryRepository {
 }
 
 export interface IUsersRepository extends IRepository<UserMongoModel> {
@@ -68,8 +72,9 @@ export interface ICommentsRepository extends IRepository<CommentMongoModel> {
 
 export interface ICommentsQueryRepository {
     isUserCommentOwner(commentId: string, userId: string): Promise<boolean>
-    getComments<T>(filter: Partial<CommentMongoModel>, query: CommentPaginationRepositoryModel, dto: (blog: CommentMongoModel[]) => T[]): Promise<WithPagination<T>>
+    getComments<T>(userId: string | null, filter: Partial<CommentMongoModel>, query: CommentPaginationRepositoryModel, dto: (blog: CommentMongoModel[], userId: string | null) => T[]): Promise<WithPagination<T>>
     getCommentById<T>(id: string, dto: (comment: CommentMongoModel) => T): Promise<T | null>
+    getCommentDocById<T>(id: string): Promise<HydratedDocument<CommentMongoModel, ICommentMethods> | null>
 }
 
 export interface ILogsRepository {

@@ -6,6 +6,7 @@ import {
 } from "../types/comments";
 
 import {withExternalDirection, withExternalNumber, withExternalString,} from "../utils/withExternalQuery";
+import {Like, LikesInfo, LikeStatus} from "../types/likes";
 
 const initialQuery: CommentPaginationRepositoryModel = {
     sortBy: "createdAt",
@@ -14,17 +15,41 @@ const initialQuery: CommentPaginationRepositoryModel = {
     pageSize: 10
 }
 
+
+function createLikesInfo(likes: Like[], userId: string | null) : LikesInfo {
+    let likeInfo: LikesInfo = {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.NONE
+    }
+    likes.forEach(model => {
+        if (model.userId === userId) {
+            likeInfo.myStatus = model.status
+        }
+        if (model.status === LikeStatus.LIKE) {
+            likeInfo.likesCount++;
+        }
+        if (model.status === LikeStatus.DISLIKE) {
+            likeInfo.dislikesCount++;
+        }
+    })
+    return likeInfo;
+}
+
 export const CommentsDto = {
-    comment({_id, content, commentatorInfo, createdAt}: CommentMongoModel): CommentViewModel {
+    comment(comment: CommentMongoModel, userId: string | null): CommentViewModel {
         return {
-            id: _id.toString(),
-            content: content,
-            commentatorInfo: commentatorInfo,
-            createdAt: createdAt,
+            id: comment._id.toString(),
+            content: comment.content,
+            commentatorInfo: comment.commentatorInfo,
+            createdAt: comment.createdAt,
+            likesInfo: createLikesInfo(comment.likes, userId)
         }
     },
-    allComments(list: CommentMongoModel[]): CommentViewModel[] {
-        return list.map(CommentsDto.comment)
+    allComments(list: CommentMongoModel[], userId: string | null): CommentViewModel[] {
+        return list.map(comment => {
+            return CommentsDto.comment(comment, userId)
+        })
     },
     toRepoQuery(query: CommentPaginationQueryModel): CommentPaginationRepositoryModel {
         return {

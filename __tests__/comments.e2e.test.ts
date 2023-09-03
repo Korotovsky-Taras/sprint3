@@ -9,9 +9,15 @@ import {
     validCommentData
 } from "./utils";
 import {BlogViewModel, ErrorsMessage, PostViewModel, Status, UserViewModel} from "../src/types";
-import {CommentCreateRequestModel, CommentUpdateModel, CommentViewModel} from "../src/types/comments";
+import {
+    CommentCreateRequestModel,
+    CommentLikeStatusUpdateModel,
+    CommentUpdateModel,
+    CommentViewModel
+} from "../src/types/comments";
 import {createAccessToken} from "../src/utils/tokenAdapter";
 import {connectDisconnectDb, connectMongooseDb} from "../src/db";
+import {LikeStatus} from "../src/types/likes";
 
 
 let blog: BlogViewModel | null = null;
@@ -80,9 +86,169 @@ describe("comments testing", () => {
                 content: expect.any(String),
                 commentatorInfo: { userId: user.id, userLogin: user.login },
                 createdAt: expect.any(String),
+                likesInfo: expect.any(Object)
             })
         }
     })
+
+    it("should like comment", async () => {
+        expect(user).not.toBeNull();
+        expect(blog).not.toBeNull();
+        expect(post).not.toBeNull();
+        expect(comment).not.toBeNull();
+
+        if (user && post && blog && comment) {
+            const res = await requestApp
+                .put(`/comments/${comment.id}/like-status`)
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .set('Content-Type', 'application/json')
+                .send({
+                    likeStatus: LikeStatus.LIKE
+                } as CommentLikeStatusUpdateModel)
+
+            expect(res.status).toBe(Status.NO_CONTENT)
+
+            const res2 = await requestApp
+                .get(`/comments/${comment.id}`)
+                .set('Content-Type', 'application/json')
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .expect(Status.OK);
+
+            expect(res2.body).toEqual({
+                id: expect.any(String),
+                content: expect.any(String),
+                commentatorInfo: expect.any(Object),
+                createdAt: expect.any(String),
+                likesInfo: {
+                    likesCount: 1,
+                    dislikesCount: 0,
+                    myStatus: LikeStatus.LIKE
+                }
+            } as CommentViewModel)
+        }
+    })
+
+    it("should dislike comment", async () => {
+        expect(user).not.toBeNull();
+        expect(blog).not.toBeNull();
+        expect(post).not.toBeNull();
+        expect(comment).not.toBeNull();
+
+        if (user && post && blog && comment) {
+            const res1 = await requestApp
+                .put(`/comments/${comment.id}/like-status`)
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .set('Content-Type', 'application/json')
+                .send({
+                    likeStatus: LikeStatus.DISLIKE
+                } as CommentLikeStatusUpdateModel)
+
+            expect(res1.status).toBe(Status.NO_CONTENT)
+
+            const res2 = await requestApp
+                .get(`/comments/${comment.id}`)
+                .set('Content-Type', 'application/json')
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .expect(Status.OK);
+
+            expect(res2.body).toEqual({
+                id: expect.any(String),
+                content: expect.any(String),
+                commentatorInfo: expect.any(Object),
+                createdAt: expect.any(String),
+                likesInfo: {
+                    likesCount: 0,
+                    dislikesCount: 1,
+                    myStatus: LikeStatus.DISLIKE
+                }
+            } as CommentViewModel)
+
+        }
+    })
+
+    it("should like comment other user", async () => {
+        expect(user).not.toBeNull();
+        expect(blog).not.toBeNull();
+        expect(post).not.toBeNull();
+        expect(comment).not.toBeNull();
+
+        if (user && post && blog && comment) {
+            const newUser = await createUser(createNewUserModel());
+
+            const res1 = await requestApp
+                .put(`/comments/${comment.id}/like-status`)
+                .set('Authorization', 'Bearer ' + createAccessToken(newUser.id).token)
+                .set('Content-Type', 'application/json')
+                .send({
+                    likeStatus: LikeStatus.LIKE
+                } as CommentLikeStatusUpdateModel)
+
+            expect(res1.status).toBe(Status.NO_CONTENT)
+
+            const res2 = await requestApp
+                .get(`/comments/${comment.id}`)
+                .set('Content-Type', 'application/json')
+                .set('Authorization', 'Bearer ' + createAccessToken(newUser.id).token)
+                .expect(Status.OK);
+
+            expect(res2.body).toEqual({
+                id: expect.any(String),
+                content: expect.any(String),
+                commentatorInfo: expect.any(Object),
+                createdAt: expect.any(String),
+                likesInfo: {
+                    likesCount: 1,
+                    dislikesCount: 1,
+                    myStatus: LikeStatus.LIKE
+                }
+            } as CommentViewModel)
+
+        }
+    })
+
+    it("should return validation error", async () => {
+        expect(user).not.toBeNull();
+        expect(blog).not.toBeNull();
+        expect(post).not.toBeNull();
+        expect(comment).not.toBeNull();
+
+        if (user && post && blog && comment) {
+
+            const res1 = await requestApp
+                .put(`/comments/${comment.id}/like-status`)
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .set('Content-Type', 'application/json')
+                .send({} as CommentLikeStatusUpdateModel)
+
+            expect(res1.status).toBe(Status.BAD_REQUEST)
+            expect(res1.body).toEqual({
+                errorsMessages: [
+                    {
+                        message: expect.any(String),
+                        field: "likeStatus"
+                    }
+                ]
+            } as ErrorsMessage)
+
+            const res2 = await requestApp
+                .put(`/comments/${comment.id}/like-status`)
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .set('Content-Type', 'application/json')
+                .send({likeStatus: "some status"})
+
+            expect(res2.status).toBe(Status.BAD_REQUEST)
+            expect(res2.body).toEqual({
+                errorsMessages: [
+                    {
+                        message: expect.any(String),
+                        field: "likeStatus"
+                    }
+                ]
+            } as ErrorsMessage)
+
+        }
+    })
+
 
     it("should update comment", async () => {
         expect(blog).not.toBeNull();
@@ -111,6 +277,7 @@ describe("comments testing", () => {
                 content: newContent,
                 commentatorInfo: expect.any(Object),
                 createdAt: expect.any(String),
+                likesInfo: expect.any(Object),
             } as CommentViewModel)
         }
     })

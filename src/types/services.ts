@@ -12,7 +12,7 @@ import {
     AuthServiceResultModel,
     AuthTokens
 } from "./login";
-import {CommentMongoModel, CommentUpdateModel} from "./comments";
+import {CommentLikeStatusInputModel, CommentMongoModel, CommentUpdateModel} from "./comments";
 import {Status} from "./custom";
 
 export interface IService {
@@ -48,5 +48,6 @@ export interface IUsersService extends IService {
 export interface ICommentsService extends IService {
     updateCommentById(commentId: string, userId: string | null, model: CommentUpdateModel): Promise<Status>
     deleteCommentById(commentId: string, userId: string | null ): Promise<Status>
-    createComment<T>(postId: string, userId: string, model: PostsCommentCreateModel, dto: (from: CommentMongoModel) => T): Promise<T | null>
+    createComment<T>(postId: string, userId: string, model: PostsCommentCreateModel, dto: (from: CommentMongoModel, userId: string | null) => T): Promise<T | null>
+    updateLikeStatus(model: CommentLikeStatusInputModel): Promise<boolean>
 }

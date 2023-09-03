@@ -14,6 +14,7 @@ export const appConfig: AppConfig = {
     mongoUrl: process.env.MONGO_URL || "mongodb://0.0.0.0:27017",
     gmailAdapterUser: process.env.MAIL_ADAPTER_USER || "",
     gmailAdapterPass: process.env.MAIL_ADAPTER_PASS || "",
+    dbName: process.env.NODE_ENV || "production",
 };
 
 type AppConfig = {
@@ -22,6 +23,7 @@ type AppConfig = {
     authPassword: string
     tokenSecret: string
     mongoUrl: string
+    dbName: string
     gmailAdapterUser: string
     gmailAdapterPass: string
 }

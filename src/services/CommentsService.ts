@@ -1,10 +1,9 @@
 import {ICommentsService, PostsCommentCreateModel, PostViewModel, Status, UserViewModel} from "../types";
-import {CommentMongoModel, CommentUpdateModel, CommentViewModel} from "../types/comments";
-import {CommentsDto} from "../dto/comments.dto";
+import {CommentLikeStatusInputModel, CommentMongoModel, CommentUpdateModel} from "../types/comments";
 import {UsersDto} from "../dto/users.dto";
 import {PostsDto} from "../dto/posts.dto";
 import {HydratedDocument} from "mongoose";
-import {CommentModel} from "../repositories/models/Comment";
+import {CommentModel, ICommentMethods} from "../repositories/models/Comment";
 import {
     ICommentsQueryRepository,
     ICommentsRepository,
@@ -12,6 +11,7 @@ import {
     IUsersQueryRepository,
 } from "../types/repository";
 import {commentsQueryRepository, commentsRepository, postsQueryRepository, usersQueryRepository} from "../repositories";
+import {ObjectId} from "mongodb";
 
 class CommentsService implements ICommentsService {
 
@@ -23,8 +23,9 @@ class CommentsService implements ICommentsService {
     ) {
     }
 
+    //TODO не должен возвращать статус
     async updateCommentById(commentId: string, userId: string | null, model: CommentUpdateModel): Promise<Status> {
-        const comment: CommentViewModel | null = await this.commentsQueryRepo.getCommentById(commentId, CommentsDto.comment)
+        const comment: HydratedDocument<CommentMongoModel> | null = await this.commentsQueryRepo.getCommentDocById(commentId)
 
         if (!comment || !userId) {
             return Status.NOT_FOUND;
@@ -45,8 +46,9 @@ class CommentsService implements ICommentsService {
         return Status.NOT_FOUND;
     }
 
+    //TODO не должен возвращать статус
     async deleteCommentById(commentId: string, userId: string | null): Promise<Status> {
-        const comment: CommentViewModel | null = await this.commentsQueryRepo.getCommentById(commentId, CommentsDto.comment)
+        const comment: HydratedDocument<CommentMongoModel> | null = await this.commentsQueryRepo.getCommentDocById(commentId)
 
         if (!comment || !userId) {
             return Status.NOT_FOUND;
@@ -67,7 +69,7 @@ class CommentsService implements ICommentsService {
         return Status.NOT_FOUND;
     }
 
-    async createComment<T>(postId: string, userId: string, model: PostsCommentCreateModel, dto: (from: CommentMongoModel) => T): Promise<T | null> {
+    async createComment<T>(postId: string, userId: string, model: PostsCommentCreateModel, dto: (from: CommentMongoModel, userId: string) => T): Promise<T | null> {
         const user: UserViewModel | null = await this.usersQueryRepo.getUserById(userId, UsersDto.user);
         const post: PostViewModel | null = await this.postsQueryRepo.getPostById(postId, PostsDto.post);
         if (user && post) {
@@ -80,9 +82,24 @@ class CommentsService implements ICommentsService {
                 }
             });
             await this.commentsRepo.saveDoc(comment);
-            return dto(comment);
+
+            return dto(comment, userId);
         }
         return null;
+    }
+
+    async updateLikeStatus(model: CommentLikeStatusInputModel): Promise<boolean> {
+         const comment : HydratedDocument<CommentMongoModel, ICommentMethods> | null = await CommentModel.findOne({_id: new ObjectId(model.commentId)}).exec();
+
+         if (!comment) {
+             return false
+         }
+
+         comment.updateLike(model.userId, model.status);
+
+         await this.commentsRepo.saveDoc(comment);
+
+         return true;
     }
 }
 

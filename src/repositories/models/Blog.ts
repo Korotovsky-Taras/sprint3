@@ -4,10 +4,9 @@ import {HydratedDocument} from "mongoose";
 import {toIsoString} from "../../utils/date";
 
 
-interface IBlogMethods {
+export interface IBlogMethods {
 
 }
-
 
 interface IBlogModel extends CustomModel<BlogMongoModel, IBlogMethods> {
     createBlog(inputModel: BlogCreateModel): HydratedDocument<BlogMongoModel>;

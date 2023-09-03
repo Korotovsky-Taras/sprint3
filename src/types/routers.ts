@@ -61,6 +61,7 @@ export interface IUsersRouterController {
 export interface ICommentsRouterController {
     getComment(req: Request, res: Response, next: NextFunction): Promise<Response>,
     updateComment(req: Request, res: Response, next: NextFunction): Promise<Response>,
+    updateCommentLikeStatus(req: Request, res: Response, next: NextFunction): Promise<Response>,
     deleteComment(req: Request, res: Response, next: NextFunction): Promise<Response>,
 }
 

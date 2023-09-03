@@ -78,7 +78,7 @@ class PostsRouterController implements IPostsRouterController {
         const query: CommentPaginationRepositoryModel = CommentsDto.toRepoQuery(req.query);
         const post: PostViewModel | null = await this.postsQueryRepository.getPostById(req.params.id, PostsDto.post);
         if (post) {
-            const comments: WithPagination<CommentViewModel> = await this.commentsQueryRepo.getComments({postId: req.params.id}, query, CommentsDto.allComments);
+            const comments: WithPagination<CommentViewModel> = await this.commentsQueryRepo.getComments(req.userId, {postId: req.params.id}, query, CommentsDto.allComments);
             return res.status(Status.OK).send(comments);
         }
         return res.sendStatus(Status.NOT_FOUND);

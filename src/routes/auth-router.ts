@@ -49,7 +49,7 @@ export const authMeRoute: Route<IAuthRouterController> = {
     controller: authRouterController,
     action: authRouterController.me,
     middlewares: [
-        authTokenAccessValidation
+        authTokenAccessValidation(true)
     ]
 }
 

@@ -56,7 +56,10 @@ const postsCommentsRoute: Route<IPostsRouterController> = {
     route: "/posts/:id/comments",
     method: RouterMethod.GET,
     controller: postsRouterController,
-    action: postsRouterController.getComments
+    action: postsRouterController.getComments,
+    middlewares: [
+        authTokenAccessValidation(false),
+    ]
 }
 
 const postsCreateCommentRoute: Route<IPostsRouterController> = {
@@ -65,7 +68,7 @@ const postsCreateCommentRoute: Route<IPostsRouterController> = {
     controller: postsRouterController,
     action: postsRouterController.createComment,
     middlewares: [
-        authTokenAccessValidation,
+        authTokenAccessValidation(true),
         commentCreateValidator
     ]
 }

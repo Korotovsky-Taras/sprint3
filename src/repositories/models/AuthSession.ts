@@ -4,7 +4,7 @@ import {ObjectId} from "mongodb";
 import {AuthSession, AuthSessionCreateModel, AuthSessionMongoModel} from "../../types/login";
 
 
-interface IAuthSessionMethods {
+export interface IAuthSessionMethods {
 
 }
 

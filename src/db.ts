@@ -2,12 +2,13 @@ import {ServerApiVersion} from "mongodb";
 import {appConfig} from "./utils/config";
 import mongoose, {ConnectOptions} from "mongoose";
 
-const {mongoUrl} = appConfig;
+const {mongoUrl, dbName} = appConfig;
 
 let connectOptions = {
     w: "majority",
     retryWrites: true,
     maxPoolSize: 20,
+    dbName,
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
@@ -18,8 +19,8 @@ let connectOptions = {
 
 export const connectMongooseDb = async () => {
     try {
-        console.log("Mongoose connecting... " + process.env.NODE_ENV);
-        await mongoose.connect(mongoUrl + "/" + process.env.NODE_ENV, connectOptions as ConnectOptions);
+        console.log("Mongoose connecting... " + dbName);
+        await mongoose.connect(mongoUrl, connectOptions as ConnectOptions);
 
         console.log("Mongoose connection status: ok");
     } catch (e: any) {

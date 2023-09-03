@@ -4,7 +4,7 @@ import {HydratedDocument} from "mongoose";
 import {toIsoString} from "../../utils/date";
 
 
-interface IPostMethods {
+export interface IPostMethods {
 
 }
 
