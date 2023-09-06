@@ -6,7 +6,6 @@ import {Log} from "./logs";
 import {PostMongoModel, PostPaginationRepositoryModel, PostsCreateModel, PostsUpdateModel} from "./posts";
 import {CommentMongoModel, CommentPaginationRepositoryModel, CommentUpdateModel} from "./comments";
 import {FilterQuery, HydratedDocument} from "mongoose";
-import {ICommentMethods} from "../repositories/models/Comment";
 
 
 export interface IRepository<T> {
@@ -25,6 +24,7 @@ export interface IUsersQueryRepository {
     getUsers<T>(query: UserPaginationRepositoryModel, dto: (blog: UserMongoModel[]) => T[]): Promise<WithPagination<T>>
     getUserById<T>(userId: string, dto: (input: UserMongoModel) => T): Promise<T | null>
     getUserByFilter<T>(filter: FilterQuery<UserMongoModel>, dto: (user: UserMongoModel) => T): Promise<T | null>
+    isUserExist(id: string): Promise<boolean>
     isUserExistByLoginOrEmail(login: string, email: string): Promise<boolean>
     getUserByLoginOrEmail<T>(login: string, email: string, dto: (user: UserMongoModel) => T): Promise<T | null>
     getAuthConfirmationValidation(code: string): Promise<UserConfirmationCodeValidateResult | null>
@@ -55,14 +55,15 @@ export interface IBlogsQueryRepository {
 }
 
 export interface IPostsRepository extends IRepository<PostMongoModel> {
-    createPost<T>(input: PostsCreateModel, dto: (post: PostMongoModel) => T): Promise<T>
+    createPost<T>(userId: string | null, input: PostsCreateModel, dto: (post: PostMongoModel, userId: string | null) => T): Promise<T>
     updatePostById(id: string, input: PostsUpdateModel): Promise<boolean>
     deletePostById(id: string): Promise<boolean>
 }
 
 export interface IPostsQueryRepository {
-    getPosts<T>(filter: Partial<PostMongoModel>, query: PostPaginationRepositoryModel, dto: (post: PostMongoModel[]) => T[]): Promise<WithPagination<T>>
-    getPostById<T>(id: string, dto: (post: PostMongoModel) => T): Promise<T | null>
+    getPosts<T>(userId: string | null, filter: Partial<PostMongoModel>, query: PostPaginationRepositoryModel, dto: (posts: PostMongoModel[], userId: string | null) => T[]): Promise<WithPagination<T>>
+    getPostById<T>(userId: string | null, id: string, dto: (post: PostMongoModel, userId: string | null) => T): Promise<T | null>
+    isPostExist(id: string): Promise<boolean>
 }
 
 export interface ICommentsRepository extends IRepository<CommentMongoModel> {
@@ -73,8 +74,8 @@ export interface ICommentsRepository extends IRepository<CommentMongoModel> {
 export interface ICommentsQueryRepository {
     isUserCommentOwner(commentId: string, userId: string): Promise<boolean>
     getComments<T>(userId: string | null, filter: Partial<CommentMongoModel>, query: CommentPaginationRepositoryModel, dto: (blog: CommentMongoModel[], userId: string | null) => T[]): Promise<WithPagination<T>>
-    getCommentById<T>(id: string, dto: (comment: CommentMongoModel) => T): Promise<T | null>
-    getCommentDocById<T>(id: string): Promise<HydratedDocument<CommentMongoModel, ICommentMethods> | null>
+    getCommentById<T>(userId: string | null, id: string, dto: (comment: CommentMongoModel, userId: string | null) => T): Promise<T | null>
+    isCommentExist(id: string): Promise<boolean>
 }
 
 export interface ILogsRepository {

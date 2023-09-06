@@ -1,12 +1,13 @@
 import {WithId} from "mongodb";
 import {PaginationQueryModel, WithPaginationQuery} from "./custom";
-import {Like, LikeStatus, WithLikes} from "./likes";
+import {Like, LikesInfo, LikeStatus, WithLikes} from "./likes";
 
 export type Comment =  {
     postId: string,
     content: string,
     commentatorInfo: CommentCommentatorInfo,
     likes: Like[];
+    likesInfo: LikesInfo;
     createdAt: string
 }
 
@@ -27,10 +28,6 @@ export type CommentLikeStatusInputModel = {
     commentId: string,
     userId: string,
     status: LikeStatus
-};
-
-export type CommentLikeStatusUpdateModel = {
-    likeStatus: LikeStatus
 };
 
 export type CommentViewModel = WithLikes<Pick<Comment, 'content' | 'commentatorInfo' | 'createdAt'> & {id: string }>;

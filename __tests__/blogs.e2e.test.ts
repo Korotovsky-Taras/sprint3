@@ -1,12 +1,14 @@
 import supertest from "supertest";
 import {app} from "../src/app";
-import {BlogViewModel, PostsCreateModel, PostViewModel, Status} from "../src/types";
-import {authBasic64, requestApp, validBlogData, validPostData} from "./utils";
+import {BlogViewModel, PostsCreateModel, PostViewModel, Status, UserViewModel} from "../src/types";
+import {authBasic64, createNewUserModel, createUser, requestApp, validBlogData, validPostData} from "./utils";
 import {connectDisconnectDb, connectMongooseDb} from "../src/db";
+import {createAccessToken} from "../src/utils/tokenAdapter";
 
 
 let createdBlogId: string | null = null;
 let createdPostId: string | null = null;
+let user: UserViewModel | null = null;
 
 describe("blogs testing", () => {
 
@@ -14,6 +16,7 @@ describe("blogs testing", () => {
         await connectMongooseDb();
         createdBlogId = null;
         createdPostId = null;
+        user = await createUser(createNewUserModel());
         await supertest(app).delete("/testing/all-data");
     })
 
@@ -58,99 +61,117 @@ describe("blogs testing", () => {
 
     it("should return bad request", async () => {
 
-         await requestApp
-            .get("/blogs/1")
-            .set('Authorization', 'Basic ' + authBasic64)
-            .expect(Status.UNHANDLED)
+        expect(user).not.toBeNull()
+
+        if (user) {
+            await requestApp
+                .get("/blogs/1")
+                .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
+                .expect(Status.UNHANDLED)
+        }
 
     })
 
     it("should create blog", async () => {
 
-        const result = await requestApp
-            .post("/blogs")
-            .set('Authorization', 'Basic ' + authBasic64)
-            .set('Content-Type', 'application/json')
-            .send(validBlogData)
-            .expect(Status.CREATED);
+        expect(user).not.toBeNull()
 
-        const {id} : Pick<BlogViewModel, 'id'> = result.body;
+        if (user) {
 
-        createdBlogId = id;
+            const result = await requestApp
+                .post("/blogs")
+                .set('Authorization', 'Basic ' + authBasic64)
+                .set('Content-Type', 'application/json')
+                .send(validBlogData)
+                .expect(Status.CREATED);
 
-        expect(result.body).toEqual({
-            id: expect.any(String),
-            name: validBlogData.name,
-            description: validBlogData.description,
-            websiteUrl: validBlogData.websiteUrl,
-            isMembership: expect.any(Boolean),
-            createdAt: expect.any(String),
-        })
+            const {id} : Pick<BlogViewModel, 'id'> = result.body;
+
+            createdBlogId = id;
+
+            expect(result.body).toEqual({
+                id: expect.any(String),
+                name: validBlogData.name,
+                description: validBlogData.description,
+                websiteUrl: validBlogData.websiteUrl,
+                isMembership: expect.any(Boolean),
+                createdAt: expect.any(String),
+            })
+        }
 
     })
 
     it("should create post", async () => {
 
-        expect(createdBlogId).not.toBe(null);
+        expect(user).not.toBeNull()
+        expect(createdBlogId).not.toBeNull();
 
-        const result = await requestApp
-            .post("/posts")
-            .set('Authorization', 'Basic ' + authBasic64)
-            .set('Content-Type', 'application/json')
-            .send({
-                ...validPostData,
+        if (user) {
+            const result = await requestApp
+                .post("/posts")
+                .set('Authorization', 'Basic ' + authBasic64)
+                .set('Content-Type', 'application/json')
+                .send({
+                    ...validPostData,
+                    blogId: createdBlogId,
+                } as PostsCreateModel)
+                .expect(Status.CREATED);
+
+            const {id}: Pick<PostViewModel, 'id'> = result.body;
+
+            createdPostId = id;
+
+            expect(result.body).toEqual({
+                id: expect.any(String),
+                blogName: expect.any(String),
+                title: validPostData.title,
+                shortDescription: validPostData.shortDescription,
+                content: validPostData.content,
                 blogId: createdBlogId,
-            } as PostsCreateModel)
-            .expect(Status.CREATED);
-
-        const {id}: Pick<PostViewModel, 'id'> = result.body;
-
-        createdPostId = id;
-
-        expect(result.body).toEqual({
-            id: expect.any(String),
-            blogName: expect.any(String),
-            title: validPostData.title,
-            shortDescription: validPostData.shortDescription,
-            content: validPostData.content,
-            blogId: createdBlogId,
-            createdAt: expect.any(String),
-        })
+                createdAt: expect.any(String),
+                extendedLikesInfo: expect.any(Object),
+            })
+        }
 
     })
 
     it("should update post", async () => {
 
-        expect(createdPostId).not.toBe(null);
+        expect(user).not.toBeNull()
+        expect(createdBlogId).not.toBeNull();
 
-        const newTitle = "new title";
+        if (user) {
 
-        await requestApp
-            .put(`/posts/${createdPostId}`)
-            .set('Authorization', 'Basic ' + authBasic64)
-            .set('Content-Type', 'application/json')
-            .send({
+            const newTitle = "new title";
+
+            await requestApp
+                .put(`/posts/${createdPostId}`)
+                .set('Authorization', 'Basic ' + authBasic64)
+                .set('Content-Type', 'application/json')
+                .send({
+                    title: newTitle,
+                    shortDescription: "valid short description",
+                    content: "valid content",
+                    blogId: createdBlogId
+                } as PostsCreateModel)
+                .expect(Status.NO_CONTENT)
+
+            const result = await requestApp
+                .get(`/posts/${createdPostId}`)
+                .set('Content-Type', 'application/json')
+                .expect(Status.OK)
+
+            expect(result.body).toEqual({
+                id: expect.any(String),
                 title: newTitle,
-                shortDescription: "valid short description",
-                content: "valid content",
-                blogId: createdBlogId
-            } as PostsCreateModel)
-            .expect(Status.NO_CONTENT)
-
-        const result = await requestApp
-            .get(`/posts/${createdPostId}`)
-            .set('Content-Type', 'application/json')
-            .expect(Status.OK)
-
-        expect(result.body).toEqual({
-            id: expect.any(String),
-            title: newTitle,
-            shortDescription: expect.any(String),
-            content: expect.any(String),
-            blogName: expect.any(String),
-            blogId: expect.any(String),
-            createdAt: expect.any(String),
-        })
+                shortDescription: expect.any(String),
+                content: expect.any(String),
+                blogName: expect.any(String),
+                blogId: expect.any(String),
+                createdAt: expect.any(String),
+                extendedLikesInfo: expect.any(Object),
+            })
+        }
 
     })
 

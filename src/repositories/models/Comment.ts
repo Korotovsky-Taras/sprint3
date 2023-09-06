@@ -26,10 +26,17 @@ export const CommentModel: ICommentModel = createModel<Comment, CommentMongoMode
         status: {type: String, enum: LikeStatus, required: true},
         createdAt: {type: String, required: true},
     }],
+    likesInfo: {
+        '_id': false,
+        likesCount: {type: Number, required: true, default: 0},
+        dislikesCount: {type: Number, required: true, default: 0},
+    },
     createdAt: {type: String, required: true}
 }, (schema) => {
 
     schema.method('updateLike', function updateLike(userId: string, likeStatus: LikeStatus) {
+
+        // Обновляем или устанавливаем лайк
         const likeIndex = this.likes.findIndex((like: Like) => like.userId === userId);
         if (likeIndex >= 0) {
             this.likes[likeIndex].status = likeStatus;
@@ -39,12 +46,25 @@ export const CommentModel: ICommentModel = createModel<Comment, CommentMongoMode
                 userId: userId,
                 status: likeStatus,
                 createdAt: toIsoString(new Date())
-            })
+            });
         }
+
+        // Обновляем статистику лайков
+        this.likesInfo.likesCount = 0;
+        this.likesInfo.dislikesCount = 0;
+        this.likes.forEach((like: Like) => {
+            if (like.status === LikeStatus.LIKE) {
+                this.likesInfo.likesCount++;
+            }
+            if (like.status === LikeStatus.DISLIKE) {
+                this.likesInfo.dislikesCount++;
+            }
+        })
+
     });
 
     schema.static('createComment', function createComment(inputModel: CommentCreateInputModel) {
-        const model : HydratedDocument<CommentMongoModel> = new CommentModel(inputModel);
+        const model : HydratedDocument<CommentMongoModel, ICommentMethods> = new CommentModel(inputModel);
         model.createdAt = toIsoString(new Date());
         return model
     });

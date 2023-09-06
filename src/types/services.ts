@@ -1,5 +1,11 @@
 import {BlogCreateModel, BlogPostCreateModel, BlogUpdateModel, BlogViewModel} from "./blogs";
-import {PostsCommentCreateModel, PostsCreateModel, PostsUpdateModel, PostViewModel} from "./posts";
+import {
+    PostsCommentCreateModel,
+    PostsCreateModel,
+    PostsLikeStatusInputModel,
+    PostsUpdateModel,
+    PostViewModel
+} from "./posts";
 import {UserCreateRequestModel, UserViewModel} from "./users";
 import {
     AuthLoginRepoModel,
@@ -21,15 +27,16 @@ export interface IService {
 
 export interface IBlogService extends IService {
     createBlog(model: BlogCreateModel): Promise<BlogViewModel>
-    createPost(blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null>
+    createPost(userId: string | null, blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null>
     updateBlogById(blogId: string, model: BlogUpdateModel): Promise<boolean>
     deleteBlogById(blogId: string): Promise<boolean>
 }
 
 export interface IPostsService extends IService {
-    createPost(model: PostsCreateModel): Promise<PostViewModel | null>
+    createPost(userId: string | null, model: PostsCreateModel): Promise<PostViewModel | null>
     updatePostById(blogId: string, model: PostsUpdateModel): Promise<boolean>
     deletePostById(blogId: string): Promise<boolean>
+    updateLikeStatus(model: PostsLikeStatusInputModel): Promise<boolean>
 }
 
 export interface IUsersService extends IService {

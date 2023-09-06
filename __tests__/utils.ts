@@ -91,7 +91,7 @@ export const createNewUserModel = () : UserCreationTestModel => {
     }
 }
 
-export const createBlog = async (model: BlogCreationTestModel = validBlogData) : Promise<BlogViewModel> => {
+export const createBlog = async (userId: string, model: BlogCreationTestModel = validBlogData) : Promise<BlogViewModel> => {
     const result = await requestApp
         .post("/blogs")
         .set('Authorization', 'Basic ' + authBasic64)
@@ -100,7 +100,7 @@ export const createBlog = async (model: BlogCreationTestModel = validBlogData) :
     return result.body;
 }
 
-export const createPost = async (blogId: string, model: PostCreationTestModel = validPostData) : Promise<PostViewModel> => {
+export const createPost = async (userId: string, blogId: string, model: PostCreationTestModel = validPostData) : Promise<PostViewModel> => {
     const result = await requestApp
         .post("/posts")
         .set('Authorization', 'Basic ' + authBasic64)

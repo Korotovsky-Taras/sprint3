@@ -27,6 +27,7 @@ export interface IPostsRouterController {
     deletePost(req: Request, res: Response, next: NextFunction): Promise<Response>,
     createComment(req: Request, res: Response, next: NextFunction): Promise<Response>,
     getComments(req: Request, res: Response, next: NextFunction): Promise<Response>,
+    updatePostLikeStatus(req: Request, res: Response, next: NextFunction): Promise<Response>,
 }
 
 export interface ILogsRouterController {

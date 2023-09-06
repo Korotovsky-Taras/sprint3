@@ -5,10 +5,10 @@ import {HydratedDocument} from "mongoose";
 import {DeleteResult, ObjectId, UpdateResult} from "mongodb";
 
 class PostsRepository implements IPostsRepository {
-    async createPost<T>(input: PostsCreateModel, dto: (post: PostMongoModel) => T): Promise<T> {
+    async createPost<T>(userId: string | null, input: PostsCreateModel, dto: (post: PostMongoModel, userId: string | null) => T): Promise<T> {
         const model : HydratedDocument<PostMongoModel> = PostModel.createPost(input)
         const post: PostMongoModel = await model.save();
-        return dto(post);
+        return dto(post, userId);
     }
     async updatePostById(id: string, input: PostsUpdateModel): Promise<boolean> {
         const res: UpdateResult = await PostModel.updateOne({_id: new ObjectId(id)}, {$set: input}).exec();

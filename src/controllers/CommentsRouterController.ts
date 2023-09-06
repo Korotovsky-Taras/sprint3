@@ -7,12 +7,12 @@ import {
     Status
 } from "../types";
 import {NextFunction, Response} from "express";
-import {CommentLikeStatusUpdateModel, CommentMongoModel, CommentUpdateModel, CommentViewModel} from "../types/comments";
+import {CommentUpdateModel, CommentViewModel} from "../types/comments";
 import {CommentsDto} from "../dto/comments.dto";
 import {commentsService} from "../services/CommentsService";
-import {ICommentsQueryRepository} from "../types/repository";
-import {commentsQueryRepository} from "../repositories";
-import {HydratedDocument} from "mongoose";
+import {ICommentsQueryRepository, IUsersQueryRepository} from "../types/repository";
+import {commentsQueryRepository, usersQueryRepository} from "../repositories";
+import {LikeStatusUpdateModel} from "../types/likes";
 
 
 class CommentsRouterController implements ICommentsRouterController {
@@ -20,13 +20,14 @@ class CommentsRouterController implements ICommentsRouterController {
     constructor(
         private readonly commentsService: ICommentsService,
         private readonly commentsQueryRepository: ICommentsQueryRepository,
+        private readonly usersQueryRepo: IUsersQueryRepository,
     ) {
     }
 
     async getComment(req: RequestWithParams<ParamIdModel>, res: Response<CommentViewModel>, next: NextFunction) {
-        const comment: HydratedDocument<CommentMongoModel> | null = await this.commentsQueryRepository.getCommentDocById(req.params.id);
+        const comment: CommentViewModel | null = await this.commentsQueryRepository.getCommentById(req.userId, req.params.id, CommentsDto.comment);
         if (comment) {
-            return res.status(Status.OK).send(CommentsDto.comment(comment, req.userId));
+            return res.status(Status.OK).send(comment);
         }
         return res.sendStatus(Status.NOT_FOUND);
     }
@@ -37,8 +38,14 @@ class CommentsRouterController implements ICommentsRouterController {
         return res.sendStatus(status);
     }
 
-    async updateCommentLikeStatus(req: RequestWithParamsBody<ParamIdModel, CommentLikeStatusUpdateModel>, res: Response) {
+    async updateCommentLikeStatus(req: RequestWithParamsBody<ParamIdModel, LikeStatusUpdateModel>, res: Response) {
         if (req.userId) {
+
+            const userExist: boolean = await this.usersQueryRepo.isUserExist(req.userId);
+
+            if (!userExist) {
+                return res.sendStatus(Status.UNATHORIZED);
+            }
 
             const isUpdated: boolean = await this.commentsService.updateLikeStatus({
                 commentId: req.params.id,
@@ -60,4 +67,4 @@ class CommentsRouterController implements ICommentsRouterController {
     }
 }
 
-export const commentsRouterController = new CommentsRouterController(commentsService, commentsQueryRepository);
+export const commentsRouterController = new CommentsRouterController(commentsService, commentsQueryRepository, usersQueryRepository);

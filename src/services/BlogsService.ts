@@ -6,10 +6,10 @@ import {
     IBlogService,
     PostViewModel
 } from "../types";
-import {PostsDto} from "../dto/posts.dto";
 import {BlogsDto} from "../dto/blogs.dto";
 import {IBlogsQueryRepository, IBlogsRepository, IPostsRepository} from "../types/repository";
 import {blogsQueryRepository, blogsRepository, postsRepository} from "../repositories";
+import {PostsDto} from "../dto/posts.dto";
 
 class BlogsService implements IBlogService {
     constructor(
@@ -23,10 +23,10 @@ class BlogsService implements IBlogService {
         return this.blogsRepo.createBlog(model, BlogsDto.blog);
     }
 
-    async createPost(blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null> {
+    async createPost(userId: string, blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null> {
         const blog: BlogViewModel | null = await this.blogsQueryRepo.getBlogById(blogId, BlogsDto.blog);
         if (blog) {
-            return this.postsRepo.createPost({
+            return this.postsRepo.createPost(userId, {
                 title: model.title,
                 shortDescription: model.shortDescription,
                 content: model.content,

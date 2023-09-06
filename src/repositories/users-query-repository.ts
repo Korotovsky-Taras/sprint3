@@ -46,9 +46,14 @@ class UsersQueryRepository implements IUsersQueryRepository {
         return null;
     }
 
+    async isUserExist(userId: string): Promise<boolean> {
+        const user: UserMongoModel | null = await UserModel.findById(userId).lean<UserMongoModel>() as UserMongoModel;
+        return !!user;
+    }
+
     async isUserExistByLoginOrEmail(login: string, email: string): Promise<boolean> {
         const user: UserMongoModel | null = await UserModel.findOne().or([{email}, {login}]).lean<UserMongoModel>() as UserMongoModel;
-        return user !== null;
+        return !!user;
     }
 
     async getUserByLoginOrEmail<T>(login: string, email: string, dto: (user: UserMongoModel) => T): Promise<T | null> {

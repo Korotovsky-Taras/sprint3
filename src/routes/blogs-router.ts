@@ -3,6 +3,7 @@ import {authBasicValidation} from "../middlewares/auth-basic-validation";
 import {blogsCreationValidator} from "../middlewares/blogs-validation";
 import {IBlogsRouterController, Route, RouterMethod} from "../types";
 import {postCreationValidator} from "../middlewares/posts-validation";
+import {authTokenAccessValidation} from "../middlewares/auth-token-access-validation";
 
 
 export const blogsRoute: Route<IBlogsRouterController> = {
@@ -24,6 +25,9 @@ const blogPostsRoute: Route<IBlogsRouterController> = {
     method: RouterMethod.GET,
     controller: blogsRouterController,
     action: blogsRouterController.getBlogPosts,
+    middlewares: [
+        authTokenAccessValidation(false)
+    ]
 }
 
 const blogPostCreationRoute: Route<IBlogsRouterController> = {

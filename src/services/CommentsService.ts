@@ -23,9 +23,8 @@ class CommentsService implements ICommentsService {
     ) {
     }
 
-    //TODO не должен возвращать статус
     async updateCommentById(commentId: string, userId: string | null, model: CommentUpdateModel): Promise<Status> {
-        const comment: HydratedDocument<CommentMongoModel> | null = await this.commentsQueryRepo.getCommentDocById(commentId)
+        const comment: boolean = await this.commentsQueryRepo.isCommentExist(commentId)
 
         if (!comment || !userId) {
             return Status.NOT_FOUND;
@@ -46,9 +45,8 @@ class CommentsService implements ICommentsService {
         return Status.NOT_FOUND;
     }
 
-    //TODO не должен возвращать статус
     async deleteCommentById(commentId: string, userId: string | null): Promise<Status> {
-        const comment: HydratedDocument<CommentMongoModel> | null = await this.commentsQueryRepo.getCommentDocById(commentId)
+        const comment: boolean = await this.commentsQueryRepo.isCommentExist(commentId)
 
         if (!comment || !userId) {
             return Status.NOT_FOUND;
@@ -71,7 +69,7 @@ class CommentsService implements ICommentsService {
 
     async createComment<T>(postId: string, userId: string, model: PostsCommentCreateModel, dto: (from: CommentMongoModel, userId: string) => T): Promise<T | null> {
         const user: UserViewModel | null = await this.usersQueryRepo.getUserById(userId, UsersDto.user);
-        const post: PostViewModel | null = await this.postsQueryRepo.getPostById(postId, PostsDto.post);
+        const post: PostViewModel | null = await this.postsQueryRepo.getPostById(userId, postId, PostsDto.post);
         if (user && post) {
             const comment: HydratedDocument<CommentMongoModel> = CommentModel.createComment({
                 postId: post.id,
@@ -95,7 +93,7 @@ class CommentsService implements ICommentsService {
              return false
          }
 
-         comment.updateLike(model.userId, model.status);
+        comment.updateLike(model.userId, model.status);
 
          await this.commentsRepo.saveDoc(comment);
 

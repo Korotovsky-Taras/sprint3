@@ -2,6 +2,7 @@ import {withValidator} from "../utils/withValidator";
 import {checkSchema} from "express-validator";
 import {BlogsDto} from "../dto/blogs.dto";
 import {blogsQueryRepository} from "../repositories";
+import {LikeStatus} from "../types/likes";
 
 export const postCreationValidator = withValidator(() => {
     return [
@@ -93,5 +94,26 @@ export const postCreationWithIdValidator = withValidator(() => {
             }
         }),
         ...postCreationValidator,
+    ]
+})
+
+export const postsUpdateLikeStatusValidator = withValidator(() => {
+    const enumValues = Object.values(LikeStatus);
+
+    return [
+        checkSchema({
+            likeStatus: {
+                in: ['body'],
+                trim: true,
+                errorMessage: 'Invalid field value',
+                custom: {
+                    options: async (likeStatus) => {
+                        if (!enumValues.includes(likeStatus)) {
+                            throw Error(`Field value must be one of ${enumValues.join(', ')}`)
+                        }
+                    },
+                },
+            }
+        }),
     ]
 })

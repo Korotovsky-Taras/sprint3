@@ -9,15 +9,10 @@ import {
     validCommentData
 } from "./utils";
 import {BlogViewModel, ErrorsMessage, PostViewModel, Status, UserViewModel} from "../src/types";
-import {
-    CommentCreateRequestModel,
-    CommentLikeStatusUpdateModel,
-    CommentUpdateModel,
-    CommentViewModel
-} from "../src/types/comments";
+import {CommentCreateRequestModel, CommentUpdateModel, CommentViewModel} from "../src/types/comments";
 import {createAccessToken} from "../src/utils/tokenAdapter";
 import {connectDisconnectDb, connectMongooseDb} from "../src/db";
-import {LikeStatus} from "../src/types/likes";
+import {LikeStatus, LikeStatusUpdateModel} from "../src/types/likes";
 
 
 let blog: BlogViewModel | null = null;
@@ -30,9 +25,9 @@ describe("comments testing", () => {
     beforeAll(async () => {
         await connectMongooseDb();
         await requestApp.delete("/testing/all-data");
-        blog = await createBlog();
-        post = await createPost(blog.id);
         user = await createUser(createNewUserModel());
+        blog = await createBlog(user.id);
+        post = await createPost(user.id, blog.id);
     })
 
     afterAll(async () => {
@@ -80,6 +75,7 @@ describe("comments testing", () => {
 
         if (post && blog && user) {
             comment = await createComment(post.id, user.id);
+            console.log({comment})
 
             expect(comment).toEqual({
                 id: expect.any(String),
@@ -104,7 +100,7 @@ describe("comments testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     likeStatus: LikeStatus.LIKE
-                } as CommentLikeStatusUpdateModel)
+                } as LikeStatusUpdateModel)
 
             expect(res.status).toBe(Status.NO_CONTENT)
 
@@ -141,7 +137,7 @@ describe("comments testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     likeStatus: LikeStatus.DISLIKE
-                } as CommentLikeStatusUpdateModel)
+                } as LikeStatusUpdateModel)
 
             expect(res1.status).toBe(Status.NO_CONTENT)
 
@@ -181,7 +177,7 @@ describe("comments testing", () => {
                 .set('Content-Type', 'application/json')
                 .send({
                     likeStatus: LikeStatus.LIKE
-                } as CommentLikeStatusUpdateModel)
+                } as LikeStatusUpdateModel)
 
             expect(res1.status).toBe(Status.NO_CONTENT)
 
@@ -218,7 +214,7 @@ describe("comments testing", () => {
                 .put(`/comments/${comment.id}/like-status`)
                 .set('Authorization', 'Bearer ' + createAccessToken(user.id).token)
                 .set('Content-Type', 'application/json')
-                .send({} as CommentLikeStatusUpdateModel)
+                .send({} as LikeStatusUpdateModel)
 
             expect(res1.status).toBe(Status.BAD_REQUEST)
             expect(res1.body).toEqual({

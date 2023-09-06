@@ -14,9 +14,9 @@ export function createModel<IType, IDoc extends WithId<IType>, IDocMethods, IMod
     connection(schema);
 
     schema.static('isValidId', async (id: string) => {
-
         return Types.ObjectId.isValid(id);
     });
+
     schema.static('isValidId', async (id: string) => {
         return Types.ObjectId.isValid(id);
     });

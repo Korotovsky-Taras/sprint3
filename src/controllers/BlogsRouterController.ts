@@ -59,14 +59,15 @@ class BlogsRouterController implements IBlogsRouterController {
         const {id} = req.params;
         const blog: BlogViewModel | null = await this.blogsQueryRepo.getBlogById(id, BlogsDto.blog)
         if (blog) {
-            const posts: WithPagination<PostViewModel> = await this.postsQueryRepo.getPosts({blogId: id}, PostsDto.toRepoQuery(req.query), PostsDto.allPosts);
+            const posts: WithPagination<PostViewModel> = await this.postsQueryRepo.getPosts(req.userId, {blogId: id}, PostsDto.toRepoQuery(req.query), PostsDto.allPosts);
             return res.status(Status.OK).send(posts);
         }
         return res.sendStatus(Status.NOT_FOUND);
     }
 
     async createBlogPost(req: RequestWithParamsBody<ParamIdModel, BlogPostCreateModel>, res: Response<PostViewModel>) {
-        const post: PostViewModel | null = await this.blogsService.createPost(req.params.id, {
+
+        const post: PostViewModel | null = await this.blogsService.createPost(req.userId, req.params.id, {
             title: req.body.title,
             shortDescription: req.body.shortDescription,
             content: req.body.content,

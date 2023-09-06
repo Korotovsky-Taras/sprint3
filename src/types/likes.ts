@@ -1,12 +1,9 @@
-import {EnhancedOmit, WithId} from "mongodb";
-
+import {EnhancedOmit} from "mongodb";
 
 export type Like =  {
-    parentId: string,
     userId: string,
     status: LikeStatus,
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: string,
 }
 
 export enum LikeStatus {
@@ -18,16 +15,46 @@ export enum LikeStatus {
 export type LikesInfo = {
     likesCount: number,
     dislikesCount: number,
-    myStatus: LikeStatus
+}
+
+export type LikeUserInfo = {
+    userId: string,
+    userLogin: string,
+}
+
+export type LastLike = {
+    userId: string,
+    userLogin: string
+    createdAt: string,
+}
+
+export type LikesExtendedInfo = {
+    likesCount: number,
+    dislikesCount: number,
+    myStatus: LikeStatus,
+    newestLikes: LikesExtendedLastLike[]
+}
+
+export type LikesExtendedLastLike = {
+    addedAt: string,
+    userId: string,
+    login: string
+}
+
+export type LikesUserStatus = {
+    myStatus: LikeStatus,
 }
 
 export type WithLikes<T> = EnhancedOmit<T, 'likesInfo'> & {
-    likesInfo: LikesInfo;
+    likesInfo: LikesInfo & LikesUserStatus;
 }
 
-export type LikeMongoModel = WithId<Like>;
+export type WithExtendedLikes<T> = EnhancedOmit<T, 'extendedLikesInfo'> & {
+    extendedLikesInfo: LikesExtendedInfo;
+}
 
-export type LikeCreateModel = Pick<Like, "parentId" | "userId" | "status">
+export type LikeStatusUpdateModel = {
+    likeStatus: LikeStatus
+};
 
-export type LikeStatusUpdateModel = Pick<Like, "parentId" | "userId" | "status">
 

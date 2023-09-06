@@ -1,5 +1,6 @@
 import {PostMongoModel, PostPaginationQueryModel, PostPaginationRepositoryModel, PostViewModel} from "../types";
 import {withExternalDirection, withExternalNumber, withExternalString,} from "../utils/withExternalQuery";
+import {LastLike, Like, LikesExtendedInfo, LikeStatus} from "../types/likes";
 
 const initialQuery: PostPaginationRepositoryModel = {
     sortBy: "createdAt",
@@ -8,19 +9,38 @@ const initialQuery: PostPaginationRepositoryModel = {
     pageSize: 10
 }
 
+function createLikesInfo(model: PostMongoModel, userId: string | null) : LikesExtendedInfo {
+    const myLike = model.likes.find((like: Like) => like.userId === userId);
+    return {
+        likesCount: model.likesInfo.likesCount,
+        dislikesCount: model.likesInfo.dislikesCount,
+        myStatus: myLike ? myLike.status : LikeStatus.NONE,
+        newestLikes: model.lastLikes.map((lastLike: LastLike) => {
+            return {
+                login: lastLike.userLogin,
+                userId: lastLike.userId,
+                addedAt: lastLike.createdAt
+            }
+        })
+    };
+}
+
 export const PostsDto = {
-    allPosts(items: PostMongoModel[]): PostViewModel[] {
-        return items.map(PostsDto.post)
+    allPosts(items: PostMongoModel[], userId: string | null): PostViewModel[] {
+        return items.map(item => {
+            return PostsDto.post(item, userId)
+        })
     },
-    post({ _id, title, shortDescription, content, blogId, blogName, createdAt }: PostMongoModel): PostViewModel {
+    post(model: PostMongoModel, userId: string | null): PostViewModel {
         return {
-            id: _id.toString(),
-            title,
-            shortDescription,
-            content,
-            blogId,
-            blogName,
-            createdAt,
+            id: model._id.toString(),
+            title: model.title,
+            shortDescription: model.shortDescription,
+            content: model.content,
+            blogId: model.blogId,
+            blogName: model.blogName,
+            createdAt: model.createdAt,
+            extendedLikesInfo: createLikesInfo(model, userId)
         }
     },
     toRepoQuery(query: PostPaginationQueryModel): PostPaginationRepositoryModel {

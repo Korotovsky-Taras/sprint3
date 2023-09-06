@@ -1,6 +1,10 @@
 import {authBasicValidation} from "../middlewares/auth-basic-validation";
 import {postsRouterController} from "../controllers/PostsRouterController";
-import {postCreationWithIdValidator, postUpdateWithIdValidator} from "../middlewares/posts-validation";
+import {
+    postCreationWithIdValidator,
+    postsUpdateLikeStatusValidator,
+    postUpdateWithIdValidator
+} from "../middlewares/posts-validation";
 import {IPostsRouterController, Route, RouterMethod} from "../types";
 import {authTokenAccessValidation} from "../middlewares/auth-token-access-validation";
 import {commentCreateValidator} from "../middlewares/comments-validation";
@@ -11,6 +15,9 @@ const postsRoute: Route<IPostsRouterController> = {
     method: RouterMethod.GET,
     controller: postsRouterController,
     action: postsRouterController.getAll,
+    middlewares: [
+        authTokenAccessValidation(false)
+    ]
 }
 
 const postSingleRoute: Route<IPostsRouterController> = {
@@ -18,6 +25,9 @@ const postSingleRoute: Route<IPostsRouterController> = {
     method: RouterMethod.GET,
     controller: postsRouterController,
     action: postsRouterController.getPost,
+    middlewares: [
+        authTokenAccessValidation(false)
+    ]
 }
 
 const postSingleUpdateRoute: Route<IPostsRouterController> = {
@@ -73,6 +83,17 @@ const postsCreateCommentRoute: Route<IPostsRouterController> = {
     ]
 }
 
+const postsUpdateLikeStatusRoute: Route<IPostsRouterController> = {
+    route: "/posts/:id/like-status",
+    method: RouterMethod.PUT,
+    controller: postsRouterController,
+    action: postsRouterController.updatePostLikeStatus,
+    middlewares: [
+        authTokenAccessValidation(true),
+        postsUpdateLikeStatusValidator
+    ]
+}
+
 export const postsRoutes: Route<IPostsRouterController>[] = [
     postsRoute,
     postSingleRoute,
@@ -81,6 +102,7 @@ export const postsRoutes: Route<IPostsRouterController>[] = [
     postSingleUpdateRoute,
     postsCommentsRoute,
     postsCreateCommentRoute,
+    postsUpdateLikeStatusRoute,
 ];
 
 

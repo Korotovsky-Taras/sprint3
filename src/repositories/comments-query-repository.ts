@@ -17,19 +17,16 @@ class CommentsQueryRepository implements ICommentsQueryRepository {
         const res : CommentMongoModel | null = await query.findOne().lean<CommentMongoModel>() as CommentMongoModel;
         return !!res;
     }
-    async getCommentById<T>(id: string, dto: (comment: CommentMongoModel) => T): Promise<T | null> {
+    async getCommentById<T>(userId: string | null, id: string, dto: (comment: CommentMongoModel, userId: string | null) => T): Promise<T | null> {
         const comment: HydratedDocument<CommentMongoModel>| null = await CommentModel.findOne({_id: new ObjectId(id)}).exec()
         if (comment) {
-            return dto(comment);
+            return dto(comment, userId);
         }
         return null;
     }
-    async getCommentDocById<T>(id: string): Promise<HydratedDocument<CommentMongoModel, ICommentMethods> | null> {
+    async isCommentExist(id: string): Promise<boolean> {
         const comment: HydratedDocument<CommentMongoModel, ICommentMethods>| null = await CommentModel.findOne({_id: new ObjectId(id)}).exec()
-        if (comment) {
-            return comment;
-        }
-        return null;
+        return !!comment;
     }
 }
 

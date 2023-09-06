@@ -4,7 +4,7 @@ import {authTokenAccessValidation} from "../middlewares/auth-token-access-valida
 import {commentUpdateLikeStatusValidator, commentUpdateValidator} from "../middlewares/comments-validation";
 
 
-export const commentSingleRoute: Route<ICommentsRouterController> = {
+const commentSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.GET,
     controller: commentsRouterController,
@@ -14,7 +14,7 @@ export const commentSingleRoute: Route<ICommentsRouterController> = {
     ]
 }
 
-export const deleteSingleRoute: Route<ICommentsRouterController> = {
+const deleteSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.DELETE,
     controller: commentsRouterController,
@@ -24,7 +24,7 @@ export const deleteSingleRoute: Route<ICommentsRouterController> = {
     ]
 }
 
-export const updateSingleRoute: Route<ICommentsRouterController> = {
+const updateSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.PUT,
     controller: commentsRouterController,
@@ -35,7 +35,7 @@ export const updateSingleRoute: Route<ICommentsRouterController> = {
     ]
 }
 
-export const updateLikeStatusRoute: Route<ICommentsRouterController> = {
+const updateLikeStatusRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id/like-status",
     method: RouterMethod.PUT,
     controller: commentsRouterController,
