@@ -7,15 +7,18 @@ import {
     PostViewModel
 } from "../types";
 import {BlogsDto} from "../dto/blogs.dto";
-import {IBlogsQueryRepository, IBlogsRepository, IPostsRepository} from "../types/repository";
-import {blogsQueryRepository, blogsRepository, postsRepository} from "../repositories";
 import {PostsDto} from "../dto/posts.dto";
+import {injectable} from "inversify";
+import {PostsRepository} from "../repositories/posts-repository";
+import {BlogsRepository} from "../repositories/blogs-repository";
+import {BlogsQueryRepository} from "../repositories/blogs-query-repository";
 
-class BlogsService implements IBlogService {
+@injectable()
+export class BlogsService implements IBlogService {
     constructor(
-        private readonly postsRepo: IPostsRepository,
-        private readonly blogsRepo: IBlogsRepository,
-        private readonly blogsQueryRepo: IBlogsQueryRepository,
+        private readonly postsRepo: PostsRepository,
+        private readonly blogsRepo: BlogsRepository,
+        private readonly blogsQueryRepo: BlogsQueryRepository,
     ) {
     }
 
@@ -23,7 +26,7 @@ class BlogsService implements IBlogService {
         return this.blogsRepo.createBlog(model, BlogsDto.blog);
     }
 
-    async createPost(userId: string, blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null> {
+    async createPost(userId: string | null, blogId: string, model: BlogPostCreateModel): Promise<PostViewModel | null> {
         const blog: BlogViewModel | null = await this.blogsQueryRepo.getBlogById(blogId, BlogsDto.blog);
         if (blog) {
             return this.postsRepo.createPost(userId, {
@@ -45,5 +48,3 @@ class BlogsService implements IBlogService {
         return this.blogsRepo.deleteBlogById(blogId)
     }
 }
-
-export const blogsService = new BlogsService(postsRepository, blogsRepository, blogsQueryRepository);

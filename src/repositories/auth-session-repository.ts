@@ -3,8 +3,10 @@ import {AuthSessionCreateModel, AuthSessionMongoModel, AuthSessionRemoveModel} f
 import {DeleteResult, ObjectId} from "mongodb";
 import {AuthSessionModel} from "./models/AuthSession";
 import {HydratedDocument} from "mongoose";
+import {injectable} from "inversify";
 
-class AuthSessionRepository implements IAuthSessionRepository {
+@injectable()
+export class AuthSessionRepository implements IAuthSessionRepository {
     async createSession(input: AuthSessionCreateModel): Promise<string> {
         const session = AuthSessionModel.createSession(input);
         await session.save();
@@ -40,5 +42,3 @@ class AuthSessionRepository implements IAuthSessionRepository {
         await AuthSessionModel.deleteMany({});
     }
 }
-
-export const authSessionRepository = new AuthSessionRepository();

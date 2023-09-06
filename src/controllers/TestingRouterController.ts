@@ -1,15 +1,18 @@
 import {Request, Response} from "express";
 import {ITestingRouterController, Status} from "../types";
-import {IBlogsRepository, ICommentsRepository, IPostsRepository, IUsersRepository} from "../types/repository";
-import {blogsRepository, commentsRepository, postsRepository, usersRepository} from "../repositories";
+import {injectable} from "inversify";
+import {BlogsRepository} from "../repositories/blogs-repository";
+import {PostsRepository} from "../repositories/posts-repository";
+import {UsersRepository} from "../repositories/users-repository";
+import {CommentsRepository} from "../repositories/comments-repository";
 
-
-class TestingRouterController implements ITestingRouterController {
+@injectable()
+export class TestingRouterController implements ITestingRouterController {
     constructor(
-        private readonly blogsRepo: IBlogsRepository,
-        private readonly postsRepo: IPostsRepository,
-        private readonly usersRepo: IUsersRepository,
-        private readonly commentsRepo: ICommentsRepository,
+        private readonly blogsRepo: BlogsRepository,
+        private readonly postsRepo: PostsRepository,
+        private readonly usersRepo: UsersRepository,
+        private readonly commentsRepo: CommentsRepository,
     ) {}
 
     async clearAll(req: Request, res: Response) {
@@ -20,5 +23,3 @@ class TestingRouterController implements ITestingRouterController {
         return res.sendStatus(Status.NO_CONTENT);
     }
 }
-
-export const testingRouterController = new TestingRouterController(blogsRepository, postsRepository, usersRepository, commentsRepository);

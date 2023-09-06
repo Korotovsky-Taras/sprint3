@@ -3,8 +3,11 @@ import {checkSchema} from "express-validator";
 import {UserWithConfirmedViewModel} from "../types";
 import {userCreateValidation} from "./user-create-validation";
 import {UsersDto} from "../dto/users.dto";
-import {usersQueryRepository} from "../repositories";
+import {IUsersQueryRepository} from "../types/repository";
+import {ioc} from "../ioc.config";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
+const usersQueryRepository : IUsersQueryRepository =  ioc.resolve<IUsersQueryRepository>(UsersQueryRepository)
 
 export const authEmailValidation = withValidator(() => {
     return [

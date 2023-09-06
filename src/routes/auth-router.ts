@@ -1,5 +1,4 @@
 import {IAuthRouterController, Route, RouterMethod} from "../types";
-import {authRouterController} from "../controllers/AuthRouterController";
 import {loginCreationValidator} from "../middlewares/login-create-validation";
 import {authTokenAccessValidation} from "../middlewares/auth-token-access-validation";
 import {
@@ -10,13 +9,17 @@ import {
 import {authTokenRefreshValidation} from "../middlewares/auth-token-refresh-validation";
 import {authRateLimiter} from "../middlewares/auth-rate-limiter";
 import {authNewPasswordValidation, authPasswordRecoveryValidation} from "../middlewares/auth-password-validation";
+import {ioc} from "../ioc.config";
+import {AuthRouterController} from "../controllers/AuthRouterController";
 
+
+const controller = ioc.resolve<IAuthRouterController>(AuthRouterController);
 
 export const authLoginRoute: Route<IAuthRouterController> = {
     route: "/auth/login",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.login,
+    controller: controller,
+    action: controller.login,
     middlewares: [
         authRateLimiter(5,10),
         loginCreationValidator,
@@ -26,8 +29,8 @@ export const authLoginRoute: Route<IAuthRouterController> = {
 export const authLogoutRoute: Route<IAuthRouterController> = {
     route: "/auth/logout",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.logout,
+    controller: controller,
+    action: controller.logout,
     middlewares: [
         authTokenRefreshValidation,
     ]
@@ -36,8 +39,8 @@ export const authLogoutRoute: Route<IAuthRouterController> = {
 export const authRefreshRoute: Route<IAuthRouterController> = {
     route: "/auth/refresh-token",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.refreshToken,
+    controller: controller,
+    action: controller.refreshToken,
     middlewares: [
         authTokenRefreshValidation
     ]
@@ -46,8 +49,8 @@ export const authRefreshRoute: Route<IAuthRouterController> = {
 export const authMeRoute: Route<IAuthRouterController> = {
     route: "/auth/me",
     method: RouterMethod.GET,
-    controller: authRouterController,
-    action: authRouterController.me,
+    controller: controller,
+    action: controller.me,
     middlewares: [
         authTokenAccessValidation(true)
     ]
@@ -56,8 +59,8 @@ export const authMeRoute: Route<IAuthRouterController> = {
 export const authRegistrationRoute: Route<IAuthRouterController> = {
     route: "/auth/registration",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.registration,
+    controller: controller,
+    action: controller.registration,
     middlewares: [
         authRateLimiter(5,10),
         authRegistrationValidation,
@@ -67,8 +70,8 @@ export const authRegistrationRoute: Route<IAuthRouterController> = {
 export const authRegistrationConfirmationRoute: Route<IAuthRouterController> = {
     route: "/auth/registration-confirmation",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.registrationConfirmation,
+    controller: controller,
+    action: controller.registrationConfirmation,
     middlewares: [
         authRateLimiter(5,10),
         authCodeValidation,
@@ -78,8 +81,8 @@ export const authRegistrationConfirmationRoute: Route<IAuthRouterController> = {
 export const authRegistrationEmailResendingRoute: Route<IAuthRouterController> = {
     route: "/auth/registration-email-resending",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.registrationEmailResending,
+    controller: controller,
+    action: controller.registrationEmailResending,
     middlewares: [
         authRateLimiter(5,10),
         authEmailResendingValidation,
@@ -89,8 +92,8 @@ export const authRegistrationEmailResendingRoute: Route<IAuthRouterController> =
 export const authPasswordRecoveryRoute: Route<IAuthRouterController> = {
     route: "/auth/password-recovery",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.passwordRecovery,
+    controller: controller,
+    action: controller.passwordRecovery,
     middlewares: [
         authRateLimiter(5,10),
         authPasswordRecoveryValidation,
@@ -100,8 +103,8 @@ export const authPasswordRecoveryRoute: Route<IAuthRouterController> = {
 export const authNewPasswordRoute: Route<IAuthRouterController> = {
     route: "/auth/new-password",
     method: RouterMethod.POST,
-    controller: authRouterController,
-    action: authRouterController.recoverPasswordWithConfirmationCode,
+    controller: controller,
+    action: controller.recoverPasswordWithConfirmationCode,
     middlewares: [
         authRateLimiter(5,10),
         authNewPasswordValidation,

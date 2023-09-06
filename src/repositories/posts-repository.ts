@@ -3,8 +3,10 @@ import {IPostsRepository} from "../types/repository";
 import {PostModel} from "./models/Post";
 import {HydratedDocument} from "mongoose";
 import {DeleteResult, ObjectId, UpdateResult} from "mongodb";
+import {injectable} from "inversify";
 
-class PostsRepository implements IPostsRepository {
+@injectable()
+export class PostsRepository implements IPostsRepository {
     async createPost<T>(userId: string | null, input: PostsCreateModel, dto: (post: PostMongoModel, userId: string | null) => T): Promise<T> {
         const model : HydratedDocument<PostMongoModel> = PostModel.createPost(input)
         const post: PostMongoModel = await model.save();
@@ -25,5 +27,3 @@ class PostsRepository implements IPostsRepository {
         await PostModel.deleteMany({});
     }
 }
-
-export const postsRepository = new PostsRepository();

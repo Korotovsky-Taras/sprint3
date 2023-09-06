@@ -1,4 +1,5 @@
 import {Response} from "express";
+import {injectable} from "inversify";
 
 import {
     BlogCreateModel,
@@ -6,7 +7,6 @@ import {
     BlogPostCreateModel,
     BlogUpdateModel,
     BlogViewModel,
-    IBlogService,
     IBlogsRouterController,
     ParamIdModel,
     PostPaginationQueryModel,
@@ -23,17 +23,17 @@ import {
 import {BlogsDto} from "../dto/blogs.dto";
 import {PostsDto} from "../dto/posts.dto";
 
-import {blogsService} from "../services/BlogsService";
-import {IBlogsQueryRepository, IPostsQueryRepository} from "../types/repository";
-import {blogsQueryRepository, postsQueryRepository} from "../repositories";
+import {BlogsQueryRepository} from "../repositories/blogs-query-repository";
+import {PostsQueryRepository} from "../repositories/posts-query-repository";
+import {BlogsService} from "../services/BlogsService";
 
-
-class BlogsRouterController implements IBlogsRouterController {
+@injectable()
+export class BlogsRouterController implements IBlogsRouterController {
 
     constructor(
-        private readonly blogsService: IBlogService,
-        private readonly blogsQueryRepo: IBlogsQueryRepository,
-        private readonly postsQueryRepo: IPostsQueryRepository,
+        private readonly blogsService: BlogsService,
+        private readonly blogsQueryRepo: BlogsQueryRepository,
+        private readonly postsQueryRepo: PostsQueryRepository,
     ) {
     }
 
@@ -94,5 +94,3 @@ class BlogsRouterController implements IBlogsRouterController {
         return res.sendStatus(Status.NOT_FOUND);
     }
 }
-
-export const blogsRouterController = new BlogsRouterController(blogsService, blogsQueryRepository, postsQueryRepository);

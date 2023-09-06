@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+
+
 import {WithPagination, WithPaginationQuery} from "./custom";
 import {Blog, BlogCreateModel, BlogMongoModel, BlogUpdateModel} from "./blogs";
 import {UserConfirmationCodeValidateResult, UserMongoModel, UserPaginationRepositoryModel} from "./users";
@@ -24,6 +27,7 @@ export interface IUsersQueryRepository {
     getUsers<T>(query: UserPaginationRepositoryModel, dto: (blog: UserMongoModel[]) => T[]): Promise<WithPagination<T>>
     getUserById<T>(userId: string, dto: (input: UserMongoModel) => T): Promise<T | null>
     getUserByFilter<T>(filter: FilterQuery<UserMongoModel>, dto: (user: UserMongoModel) => T): Promise<T | null>
+    getPassConfirmationValidation(code: string): Promise<UserConfirmationCodeValidateResult | null>
     isUserExist(id: string): Promise<boolean>
     isUserExistByLoginOrEmail(login: string, email: string): Promise<boolean>
     getUserByLoginOrEmail<T>(login: string, email: string, dto: (user: UserMongoModel) => T): Promise<T | null>

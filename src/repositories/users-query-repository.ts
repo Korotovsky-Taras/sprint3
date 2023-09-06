@@ -8,8 +8,10 @@ import {IUsersQueryRepository} from "../types/repository";
 import {withModelPagination} from "./utils/withModelPagination";
 import {IUserMethods, UserModel} from "./models/User";
 import {FilterQuery, HydratedDocument} from "mongoose";
+import {injectable} from "inversify";
 
-class UsersQueryRepository implements IUsersQueryRepository {
+@injectable()
+export class UsersQueryRepository implements IUsersQueryRepository {
 
     async getUsers<T>(query: UserPaginationRepositoryModel, dto: (blog: UserMongoModel[]) => T[]): Promise<WithPagination<T>> {
         let filter: FilterQuery<UserMongoModel> = {};
@@ -100,5 +102,3 @@ class UsersQueryRepository implements IUsersQueryRepository {
         return null;
     }
 }
-
-export const usersQueryRepository = new UsersQueryRepository();

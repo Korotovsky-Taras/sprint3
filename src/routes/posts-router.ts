@@ -1,5 +1,5 @@
 import {authBasicValidation} from "../middlewares/auth-basic-validation";
-import {postsRouterController} from "../controllers/PostsRouterController";
+import {PostsRouterController} from "../controllers/PostsRouterController";
 import {
     postCreationWithIdValidator,
     postsUpdateLikeStatusValidator,
@@ -8,13 +8,16 @@ import {
 import {IPostsRouterController, Route, RouterMethod} from "../types";
 import {authTokenAccessValidation} from "../middlewares/auth-token-access-validation";
 import {commentCreateValidator} from "../middlewares/comments-validation";
+import {ioc} from "../ioc.config";
 
+
+const controller = ioc.resolve<IPostsRouterController>(PostsRouterController);
 
 const postsRoute: Route<IPostsRouterController> = {
     route: "/posts",
     method: RouterMethod.GET,
-    controller: postsRouterController,
-    action: postsRouterController.getAll,
+    controller: controller,
+    action: controller.getAll,
     middlewares: [
         authTokenAccessValidation(false)
     ]
@@ -23,8 +26,8 @@ const postsRoute: Route<IPostsRouterController> = {
 const postSingleRoute: Route<IPostsRouterController> = {
     route: "/posts/:id",
     method: RouterMethod.GET,
-    controller: postsRouterController,
-    action: postsRouterController.getPost,
+    controller: controller,
+    action: controller.getPost,
     middlewares: [
         authTokenAccessValidation(false)
     ]
@@ -33,8 +36,8 @@ const postSingleRoute: Route<IPostsRouterController> = {
 const postSingleUpdateRoute: Route<IPostsRouterController> = {
     route: "/posts/:id",
     method: RouterMethod.PUT,
-    controller: postsRouterController,
-    action: postsRouterController.updatePost,
+    controller: controller,
+    action: controller.updatePost,
     middlewares: [
         authBasicValidation,
         postUpdateWithIdValidator
@@ -44,8 +47,8 @@ const postSingleUpdateRoute: Route<IPostsRouterController> = {
 const postsCreationRoute: Route<IPostsRouterController> = {
     route: "/posts",
     method: RouterMethod.POST,
-    controller: postsRouterController,
-    action: postsRouterController.createPost,
+    controller: controller,
+    action: controller.createPost,
     middlewares: [
         authBasicValidation,
         postCreationWithIdValidator,
@@ -55,8 +58,8 @@ const postsCreationRoute: Route<IPostsRouterController> = {
 const postsDeletingRoute: Route<IPostsRouterController> = {
     route: "/posts/:id",
     method: RouterMethod.DELETE,
-    controller: postsRouterController,
-    action: postsRouterController.deletePost,
+    controller: controller,
+    action: controller.deletePost,
     middlewares: [
         authBasicValidation,
     ]
@@ -65,8 +68,8 @@ const postsDeletingRoute: Route<IPostsRouterController> = {
 const postsCommentsRoute: Route<IPostsRouterController> = {
     route: "/posts/:id/comments",
     method: RouterMethod.GET,
-    controller: postsRouterController,
-    action: postsRouterController.getComments,
+    controller: controller,
+    action: controller.getComments,
     middlewares: [
         authTokenAccessValidation(false),
     ]
@@ -75,8 +78,8 @@ const postsCommentsRoute: Route<IPostsRouterController> = {
 const postsCreateCommentRoute: Route<IPostsRouterController> = {
     route: "/posts/:id/comments",
     method: RouterMethod.POST,
-    controller: postsRouterController,
-    action: postsRouterController.createComment,
+    controller: controller,
+    action: controller.createComment,
     middlewares: [
         authTokenAccessValidation(true),
         commentCreateValidator
@@ -86,8 +89,8 @@ const postsCreateCommentRoute: Route<IPostsRouterController> = {
 const postsUpdateLikeStatusRoute: Route<IPostsRouterController> = {
     route: "/posts/:id/like-status",
     method: RouterMethod.PUT,
-    controller: postsRouterController,
-    action: postsRouterController.updatePostLikeStatus,
+    controller: controller,
+    action: controller.updatePostLikeStatus,
     middlewares: [
         authTokenAccessValidation(true),
         postsUpdateLikeStatusValidator

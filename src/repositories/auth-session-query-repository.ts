@@ -2,8 +2,10 @@ import {AuthSessionMongoModel} from "../types/login";
 import {ObjectId} from "mongodb";
 import {IAuthSessionQueryRepository} from "../types/repository";
 import {AuthSessionModel} from "./models/AuthSession";
+import {injectable} from "inversify";
 
-class AuthSessionQueryRepository implements IAuthSessionQueryRepository {
+@injectable()
+export class AuthSessionQueryRepository implements IAuthSessionQueryRepository {
     async getAll<T>(userId: string, dto: (session: AuthSessionMongoModel[]) => T[]): Promise<T[]> {
         const sessions: AuthSessionMongoModel[] = await AuthSessionModel.find({userId}).lean<AuthSessionMongoModel[]>() as AuthSessionMongoModel[]
         return dto(sessions);
@@ -24,5 +26,3 @@ class AuthSessionQueryRepository implements IAuthSessionQueryRepository {
         return null;
     }
 }
-
-export const authSessionQueryRepository = new AuthSessionQueryRepository();

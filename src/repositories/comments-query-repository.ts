@@ -5,8 +5,10 @@ import {CommentModel, ICommentMethods} from "./models/Comment";
 import {withModelPagination} from "./utils/withModelPagination";
 import {WithPagination} from "../types";
 import {HydratedDocument} from "mongoose";
+import {injectable} from "inversify";
 
-class CommentsQueryRepository implements ICommentsQueryRepository {
+@injectable()
+export class CommentsQueryRepository implements ICommentsQueryRepository {
     async getComments<T>(userId: string | null, filter: Partial<CommentMongoModel>, query: CommentPaginationRepositoryModel, dto: (blog: CommentMongoModel[], userId: string | null) => T[]): Promise<WithPagination<T>> {
         return withModelPagination<CommentMongoModel, T>(CommentModel, filter, query, (items) => {
             return dto(items, userId)
@@ -29,5 +31,3 @@ class CommentsQueryRepository implements ICommentsQueryRepository {
         return !!comment;
     }
 }
-
-export const commentsQueryRepository = new CommentsQueryRepository();

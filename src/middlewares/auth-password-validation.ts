@@ -1,7 +1,10 @@
 import {withValidator} from "../utils/withValidator";
 import {checkSchema} from "express-validator";
-import {usersQueryRepository} from "../repositories";
+import {IUsersQueryRepository} from "../types/repository";
+import {ioc} from "../ioc.config";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
+const usersQueryRepository : IUsersQueryRepository =  ioc.resolve<IUsersQueryRepository>(UsersQueryRepository)
 
 export const authPasswordRecoveryValidation = withValidator(() => {
     return [

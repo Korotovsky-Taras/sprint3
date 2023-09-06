@@ -4,7 +4,11 @@ import {authHelper} from "../managers/authHelper";
 import {AuthRefreshTokenPayload, AuthSessionValidationModel} from "../types/login";
 import {verifyRefreshToken} from "../utils/tokenAdapter";
 import {AuthDto} from "../dto/auth.dto";
-import {authSessionQueryRepository} from "../repositories";
+import {IAuthSessionQueryRepository} from "../types/repository";
+import {ioc} from "../ioc.config";
+import {AuthSessionQueryRepository} from "../repositories/auth-session-query-repository";
+
+const authSessionQueryRepository : IAuthSessionQueryRepository =  ioc.resolve<IAuthSessionQueryRepository>(AuthSessionQueryRepository)
 
 export const authTokenRefreshValidation = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken : string | null = authHelper.getRefreshToken(req);

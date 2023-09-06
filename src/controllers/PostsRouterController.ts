@@ -1,8 +1,6 @@
 import {NextFunction, Response} from "express";
 import {
-    ICommentsService,
     IPostsRouterController,
-    IPostsService,
     PaginationQueryModel,
     ParamIdModel,
     Post,
@@ -21,21 +19,23 @@ import {
 import {PostsDto} from "../dto/posts.dto";
 import {Comment, CommentPaginationRepositoryModel, CommentViewModel} from "../types/comments";
 import {CommentsDto} from "../dto/comments.dto";
-import {commentsService} from "../services/CommentsService";
-import {postsService} from "../services/PostsService";
-import {ICommentsQueryRepository, IPostsQueryRepository, IUsersQueryRepository} from "../types/repository";
-import {commentsQueryRepository, postsQueryRepository, usersQueryRepository} from "../repositories";
 import {LikeStatusUpdateModel} from "../types/likes";
+import {injectable} from "inversify";
+import {PostsService} from "../services/PostsService";
+import {CommentsService} from "../services/CommentsService";
+import {CommentsQueryRepository} from "../repositories/comments-query-repository";
+import {PostsQueryRepository} from "../repositories/posts-query-repository";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
-
-class PostsRouterController implements IPostsRouterController {
+@injectable()
+export class PostsRouterController implements IPostsRouterController {
 
     constructor(
-        private readonly postsService: IPostsService,
-        private readonly commentsService: ICommentsService,
-        private readonly commentsQueryRepo: ICommentsQueryRepository,
-        private readonly postsQueryRepository: IPostsQueryRepository,
-        private readonly usersQueryRepo: IUsersQueryRepository,
+        private readonly postsService: PostsService,
+        private readonly commentsService: CommentsService,
+        private readonly commentsQueryRepo: CommentsQueryRepository,
+        private readonly postsQueryRepository: PostsQueryRepository,
+        private readonly usersQueryRepo: UsersQueryRepository,
     ) {
     }
 
@@ -119,5 +119,3 @@ class PostsRouterController implements IPostsRouterController {
         return res.sendStatus(Status.UNATHORIZED);
     }
 }
-
-export const postsRouterController = new PostsRouterController(postsService, commentsService, commentsQueryRepository, postsQueryRepository, usersQueryRepository);

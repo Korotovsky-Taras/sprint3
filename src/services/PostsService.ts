@@ -9,18 +9,21 @@ import {
 } from "../types";
 import {PostsDto} from "../dto/posts.dto";
 import {BlogsDto} from "../dto/blogs.dto";
-import {IBlogsQueryRepository, IPostsQueryRepository, IPostsRepository} from "../types/repository";
-import {blogsQueryRepository, postsQueryRepository, postsRepository} from "../repositories";
 import {HydratedDocument} from "mongoose";
 import {ObjectId} from "mongodb";
 import {IPostMethods, PostModel} from "../repositories/models/Post";
+import {injectable} from "inversify";
+import {PostsRepository} from "../repositories/posts-repository";
+import {PostsQueryRepository} from "../repositories/posts-query-repository";
+import {BlogsQueryRepository} from "../repositories/blogs-query-repository";
 
-class PostsService implements IPostsService {
+@injectable()
+export class PostsService implements IPostsService {
 
     constructor(
-        private readonly postsRepo: IPostsRepository,
-        private readonly postsQueryRepo: IPostsQueryRepository,
-        private readonly blogsQueryRepo: IBlogsQueryRepository,
+        private readonly postsRepo: PostsRepository,
+        private readonly postsQueryRepo: PostsQueryRepository,
+        private readonly blogsQueryRepo: BlogsQueryRepository,
     ) {
     }
 
@@ -59,5 +62,3 @@ class PostsService implements IPostsService {
     }
 
 }
-
-export const postsService = new PostsService(postsRepository, postsQueryRepository, blogsQueryRepository);

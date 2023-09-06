@@ -1,4 +1,4 @@
-import {IAuthRouterController, IUsersService, RequestWithBody, Status, UserMeViewModel} from "../types";
+import {IAuthRouterController, RequestWithBody, Status, UserMeViewModel} from "../types";
 import {NextFunction, Request, Response} from "express";
 import {
     AuthLoginReqModel,
@@ -10,17 +10,18 @@ import {
 } from "../types/login";
 import {authHelper} from "../managers/authHelper";
 import {UsersDto} from "../dto/users.dto";
-import {usersService} from "../services/UsersService";
-import {IAuthSessionQueryRepository, IUsersQueryRepository} from "../types/repository";
-import {authSessionQueryRepository, usersQueryRepository} from "../repositories";
+import {injectable} from "inversify";
+import {UsersService} from "../services/UsersService";
+import {AuthSessionQueryRepository} from "../repositories/auth-session-query-repository";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
-
+@injectable()
 export class AuthRouterController implements IAuthRouterController {
 
     constructor(
-        private readonly userService: IUsersService,
-        private readonly authQueryRepo: IAuthSessionQueryRepository,
-        private readonly userQueryRepo: IUsersQueryRepository,
+        private readonly userService: UsersService,
+        private readonly authQueryRepo: AuthSessionQueryRepository,
+        private readonly userQueryRepo: UsersQueryRepository,
     ) {
     }
 
@@ -119,5 +120,3 @@ export class AuthRouterController implements IAuthRouterController {
         return res.sendStatus(Status.BAD_REQUEST)
     }
 }
-
-export const authRouterController = new AuthRouterController(usersService, authSessionQueryRepository, usersQueryRepository);

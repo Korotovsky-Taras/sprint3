@@ -2,9 +2,11 @@ import {PostMongoModel, PostPaginationRepositoryModel, WithPagination} from "../
 import {IPostsQueryRepository} from "../types/repository";
 import {withModelPagination} from "./utils/withModelPagination";
 import {PostModel} from "./models/Post";
+import {injectable} from "inversify";
 
-class PostsQueryRepository implements IPostsQueryRepository {
-    async getPosts<T>(userId: string, filter: Partial<PostMongoModel>, query: PostPaginationRepositoryModel, dto: (posts: PostMongoModel[], userId: string | null) => T[]): Promise<WithPagination<T>> {
+@injectable()
+export class PostsQueryRepository implements IPostsQueryRepository {
+    async getPosts<T>(userId: string | null, filter: Partial<PostMongoModel>, query: PostPaginationRepositoryModel, dto: (posts: PostMongoModel[], userId: string | null) => T[]): Promise<WithPagination<T>> {
         return withModelPagination<PostMongoModel, T>(PostModel, filter, query, (items) => {
             return dto(items, userId)
         });
@@ -21,5 +23,3 @@ class PostsQueryRepository implements IPostsQueryRepository {
         return !!post
     }
 }
-
-export const postsQueryRepository = new PostsQueryRepository();

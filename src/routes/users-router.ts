@@ -1,21 +1,23 @@
 import {IUsersRouterController, Route, RouterMethod} from "../types";
-import {usersRouterController} from "../controllers/UsersRouterController";
+import {UsersRouterController} from "../controllers/UsersRouterController";
 import {authBasicValidation} from "../middlewares/auth-basic-validation";
 import {userCreateValidation} from "../middlewares/user-create-validation";
+import {ioc} from "../ioc.config";
 
+const controller = ioc.resolve<IUsersRouterController>(UsersRouterController);
 
 export const usersAllRoute: Route<IUsersRouterController> = {
     route: "/users",
     method: RouterMethod.GET,
-    controller: usersRouterController,
-    action: usersRouterController.getAll,
+    controller: controller,
+    action: controller.getAll,
 }
 
 export const userCreateRoute: Route<IUsersRouterController> = {
     route: "/users",
     method: RouterMethod.POST,
-    controller: usersRouterController,
-    action: usersRouterController.createUser,
+    controller: controller,
+    action: controller.createUser,
     middlewares: [
         authBasicValidation,
         userCreateValidation
@@ -25,8 +27,8 @@ export const userCreateRoute: Route<IUsersRouterController> = {
 export const usersDeleteRoute: Route<IUsersRouterController> = {
     route: "/users/:id",
     method: RouterMethod.DELETE,
-    controller: usersRouterController,
-    action: usersRouterController.deleteUser,
+    controller: controller,
+    action: controller.deleteUser,
     middlewares: [
         authBasicValidation,
     ]

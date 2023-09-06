@@ -1,6 +1,5 @@
 import {
     IUsersRouterController,
-    IUsersService,
     ParamIdModel,
     RequestWithBody,
     RequestWithParams,
@@ -13,16 +12,16 @@ import {
 } from "../types";
 import {NextFunction, Response} from "express";
 import {UsersDto} from "../dto/users.dto";
-import {usersService} from "../services/UsersService";
-import {IUsersQueryRepository} from "../types/repository";
-import {usersQueryRepository} from "../repositories";
+import {injectable} from "inversify";
+import {UsersService} from "../services/UsersService";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
-
-class UsersRouterController implements IUsersRouterController {
+@injectable()
+export class UsersRouterController implements IUsersRouterController {
 
     constructor(
-        private readonly usersService: IUsersService,
-        private readonly usersQueryRepo: IUsersQueryRepository
+        private readonly usersService: UsersService,
+        private readonly usersQueryRepo: UsersQueryRepository
     ) {
     }
 
@@ -48,5 +47,3 @@ class UsersRouterController implements IUsersRouterController {
         return res.sendStatus(Status.NOT_FOUND);
     }
 }
-
-export const usersRouterController = new UsersRouterController(usersService, usersQueryRepository);

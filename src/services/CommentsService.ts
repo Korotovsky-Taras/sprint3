@@ -4,22 +4,21 @@ import {UsersDto} from "../dto/users.dto";
 import {PostsDto} from "../dto/posts.dto";
 import {HydratedDocument} from "mongoose";
 import {CommentModel, ICommentMethods} from "../repositories/models/Comment";
-import {
-    ICommentsQueryRepository,
-    ICommentsRepository,
-    IPostsQueryRepository,
-    IUsersQueryRepository,
-} from "../types/repository";
-import {commentsQueryRepository, commentsRepository, postsQueryRepository, usersQueryRepository} from "../repositories";
 import {ObjectId} from "mongodb";
+import {injectable} from "inversify";
+import {CommentsRepository} from "../repositories/comments-repository";
+import {CommentsQueryRepository} from "../repositories/comments-query-repository";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
+import {PostsQueryRepository} from "../repositories/posts-query-repository";
 
-class CommentsService implements ICommentsService {
+@injectable()
+export class CommentsService implements ICommentsService {
 
     constructor(
-        private readonly commentsRepo: ICommentsRepository,
-        private readonly commentsQueryRepo: ICommentsQueryRepository,
-        private readonly usersQueryRepo: IUsersQueryRepository,
-        private readonly postsQueryRepo: IPostsQueryRepository,
+        private readonly commentsRepo: CommentsRepository,
+        private readonly commentsQueryRepo: CommentsQueryRepository,
+        private readonly usersQueryRepo: UsersQueryRepository,
+        private readonly postsQueryRepo: PostsQueryRepository,
     ) {
     }
 
@@ -100,6 +99,3 @@ class CommentsService implements ICommentsService {
          return true;
     }
 }
-
-
-export const commentsService = new CommentsService(commentsRepository, commentsQueryRepository, usersQueryRepository, postsQueryRepository);

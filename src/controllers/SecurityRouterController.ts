@@ -2,16 +2,18 @@ import {ISecurityRouterController, ParamIdModel, RequestWithParams, Status} from
 import {NextFunction, Request, Response} from "express";
 import {AuthSessionViewModel} from "../types/login";
 import {AuthDto} from "../dto/auth.dto";
-import {IAuthSessionQueryRepository, IAuthSessionRepository, IUsersQueryRepository} from "../types/repository";
-import {authSessionQueryRepository, authSessionRepository, usersQueryRepository} from "../repositories";
+import {injectable} from "inversify";
+import {AuthSessionRepository} from "../repositories/auth-session-repository";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
+import {AuthSessionQueryRepository} from "../repositories/auth-session-query-repository";
 
-
-class SecurityRouterController implements ISecurityRouterController {
+@injectable()
+export class SecurityRouterController implements ISecurityRouterController {
 
     constructor(
-        private authSessionRepo: IAuthSessionRepository,
-        private usersQueryRepo: IUsersQueryRepository,
-        private authSessionQueryRepo: IAuthSessionQueryRepository,
+        private authSessionRepo: AuthSessionRepository,
+        private usersQueryRepo: UsersQueryRepository,
+        private authSessionQueryRepo: AuthSessionQueryRepository,
     ) {
     }
 
@@ -58,5 +60,3 @@ class SecurityRouterController implements ISecurityRouterController {
         return res.sendStatus(Status.UNATHORIZED);
     }
 }
-
-export const securityRouterController = new SecurityRouterController(authSessionRepository, usersQueryRepository, authSessionQueryRepository);

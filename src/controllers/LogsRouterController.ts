@@ -1,14 +1,16 @@
 import {Request, Response} from "express";
 import {ILogsRouterController, Log, Status} from "../types";
-import {ILogsQueryRepository, ILogsRepository} from "../types/repository";
-import {logsQueryRepository, logsRepository} from "../repositories";
+import {injectable} from "inversify";
+import {LogsRepository} from "../repositories/logs-repository";
+import {LogsQueryRepository} from "../repositories/logs-query-repository";
 
 
-class LogsRouterController implements ILogsRouterController {
+@injectable()
+export class LogsRouterController implements ILogsRouterController {
 
     constructor(
-        private readonly logsRepo: ILogsRepository,
-        private readonly logsQueryRepo: ILogsQueryRepository,
+        private readonly logsRepo: LogsRepository,
+        private readonly logsQueryRepo: LogsQueryRepository,
     ) {
     }
 
@@ -30,5 +32,3 @@ class LogsRouterController implements ILogsRouterController {
         }
     }
 }
-
-export const logsRouterController = new LogsRouterController(logsRepository, logsQueryRepository);

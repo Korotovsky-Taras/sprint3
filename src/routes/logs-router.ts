@@ -1,18 +1,21 @@
 import {ILogsRouterController, Route, RouterMethod} from "../types";
-import {logsRouterController} from "../controllers/LogsRouterController";
+import {LogsRouterController} from "../controllers/LogsRouterController";
+import {ioc} from "../ioc.config";
+
+const controller = ioc.resolve<ILogsRouterController>(LogsRouterController);
 
 export const logsRoute: Route<ILogsRouterController> = {
     route: "/logs",
     method: RouterMethod.GET,
-    controller: logsRouterController,
-    action: logsRouterController.getAll,
+    controller: controller,
+    action: controller.getAll,
 }
 
 export const clearLogsRoute: Route<ILogsRouterController> = {
     route: "/logs",
     method: RouterMethod.DELETE,
-    controller: logsRouterController,
-    action: logsRouterController.deleteAll,
+    controller: controller,
+    action: controller.deleteAll,
 }
 
 export const logsRoutes: Route<ILogsRouterController>[] = [

@@ -22,6 +22,8 @@ import {
     AuthSessionMongoModel,
     AuthTokens
 } from "../types/login";
+import {injectable} from "inversify";
+
 import {mailSender} from "../managers/mailSender";
 import {HydratedDocument} from "mongoose";
 import crypto from "node:crypto";
@@ -30,15 +32,17 @@ import {randomUUID} from "crypto";
 import {DeleteResult, ObjectId, UpdateResult} from "mongodb";
 import {createAccessToken, createRefreshToken} from "../utils/tokenAdapter";
 import {AuthSessionModel} from "../repositories/models/AuthSession";
-import {IAuthSessionRepository, IUsersQueryRepository, IUsersRepository} from "../types/repository";
-import {authSessionRepository, usersQueryRepository, usersRepository} from "../repositories";
+import {UsersRepository} from "../repositories/users-repository";
+import {AuthSessionRepository} from "../repositories/auth-session-repository";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
-class UsersService implements IUsersService {
+@injectable()
+export class UsersService implements IUsersService {
 
     constructor(
-        private readonly usersRepo: IUsersRepository,
-        private readonly sessionRepo: IAuthSessionRepository,
-        private readonly usersQueryRepo: IUsersQueryRepository,
+        private readonly usersRepo: UsersRepository,
+        private readonly sessionRepo: AuthSessionRepository,
+        private readonly usersQueryRepo: UsersQueryRepository,
     ) {
     }
 
@@ -285,5 +289,3 @@ class UsersService implements IUsersService {
         }
     }
 }
-
-export const usersService = new UsersService(usersRepository, authSessionRepository, usersQueryRepository);

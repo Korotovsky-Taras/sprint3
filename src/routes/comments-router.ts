@@ -1,14 +1,16 @@
 import {ICommentsRouterController, Route, RouterMethod} from "../types";
-import {commentsRouterController} from "../controllers/CommentsRouterController";
+import {CommentsRouterController} from "../controllers/CommentsRouterController";
 import {authTokenAccessValidation} from "../middlewares/auth-token-access-validation";
 import {commentUpdateLikeStatusValidator, commentUpdateValidator} from "../middlewares/comments-validation";
+import {ioc} from "../ioc.config";
 
+const controller = ioc.resolve<ICommentsRouterController>(CommentsRouterController);
 
 const commentSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.GET,
-    controller: commentsRouterController,
-    action: commentsRouterController.getComment,
+    controller: controller,
+    action: controller.getComment,
     middlewares: [
         authTokenAccessValidation(false)
     ]
@@ -17,8 +19,8 @@ const commentSingleRoute: Route<ICommentsRouterController> = {
 const deleteSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.DELETE,
-    controller: commentsRouterController,
-    action: commentsRouterController.deleteComment,
+    controller: controller,
+    action: controller.deleteComment,
     middlewares: [
         authTokenAccessValidation(true)
     ]
@@ -27,8 +29,8 @@ const deleteSingleRoute: Route<ICommentsRouterController> = {
 const updateSingleRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id",
     method: RouterMethod.PUT,
-    controller: commentsRouterController,
-    action: commentsRouterController.updateComment,
+    controller: controller,
+    action: controller.updateComment,
     middlewares: [
         authTokenAccessValidation(true),
         commentUpdateValidator
@@ -38,8 +40,8 @@ const updateSingleRoute: Route<ICommentsRouterController> = {
 const updateLikeStatusRoute: Route<ICommentsRouterController> = {
     route: "/comments/:id/like-status",
     method: RouterMethod.PUT,
-    controller: commentsRouterController,
-    action: commentsRouterController.updateCommentLikeStatus,
+    controller: controller,
+    action: controller.updateCommentLikeStatus,
     middlewares: [
         authTokenAccessValidation(true),
         commentUpdateLikeStatusValidator

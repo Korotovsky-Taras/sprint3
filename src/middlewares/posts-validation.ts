@@ -1,8 +1,12 @@
 import {withValidator} from "../utils/withValidator";
 import {checkSchema} from "express-validator";
 import {BlogsDto} from "../dto/blogs.dto";
-import {blogsQueryRepository} from "../repositories";
 import {LikeStatus} from "../types/likes";
+import {ioc} from "../ioc.config";
+import {IBlogsQueryRepository} from "../types/repository";
+import {BlogsQueryRepository} from "../repositories/blogs-query-repository";
+
+const blogsQueryRepository : IBlogsQueryRepository =  ioc.resolve<IBlogsQueryRepository>(BlogsQueryRepository)
 
 export const postCreationValidator = withValidator(() => {
     return [

@@ -1,10 +1,12 @@
 import fs from "fs";
 import {ensureLogsExist, logsPath} from "../utils/withMongoLogger";
 import {ILogsRepository} from "../types/repository";
+import {injectable} from "inversify";
 
-class LogsRepository implements ILogsRepository {
+@injectable()
+export class LogsRepository implements ILogsRepository {
     async clear(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             ensureLogsExist();
             fs.writeFile(logsPath, "", () => {
                 resolve()
@@ -12,5 +14,3 @@ class LogsRepository implements ILogsRepository {
         })
     }
 }
-
-export const logsRepository = new LogsRepository()

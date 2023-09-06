@@ -1,26 +1,20 @@
-import {
-    ICommentsRouterController,
-    ICommentsService,
-    ParamIdModel,
-    RequestWithParams,
-    RequestWithParamsBody,
-    Status
-} from "../types";
+import {ICommentsRouterController, ParamIdModel, RequestWithParams, RequestWithParamsBody, Status} from "../types";
 import {NextFunction, Response} from "express";
 import {CommentUpdateModel, CommentViewModel} from "../types/comments";
 import {CommentsDto} from "../dto/comments.dto";
-import {commentsService} from "../services/CommentsService";
-import {ICommentsQueryRepository, IUsersQueryRepository} from "../types/repository";
-import {commentsQueryRepository, usersQueryRepository} from "../repositories";
 import {LikeStatusUpdateModel} from "../types/likes";
+import {injectable} from "inversify";
+import {CommentsService} from "../services/CommentsService";
+import {CommentsQueryRepository} from "../repositories/comments-query-repository";
+import {UsersQueryRepository} from "../repositories/users-query-repository";
 
-
-class CommentsRouterController implements ICommentsRouterController {
+@injectable()
+export class CommentsRouterController implements ICommentsRouterController {
 
     constructor(
-        private readonly commentsService: ICommentsService,
-        private readonly commentsQueryRepository: ICommentsQueryRepository,
-        private readonly usersQueryRepo: IUsersQueryRepository,
+        private readonly commentsService: CommentsService,
+        private readonly commentsQueryRepository: CommentsQueryRepository,
+        private readonly usersQueryRepo: UsersQueryRepository,
     ) {
     }
 
@@ -66,5 +60,3 @@ class CommentsRouterController implements ICommentsRouterController {
         return res.sendStatus(status);
     }
 }
-
-export const commentsRouterController = new CommentsRouterController(commentsService, commentsQueryRepository, usersQueryRepository);

@@ -3,8 +3,10 @@ import {CommentModel} from "./models/Comment";
 import {HydratedDocument} from "mongoose";
 import {ICommentsRepository} from "../types/repository";
 import {DeleteResult, ObjectId, UpdateResult} from "mongodb";
+import {injectable} from "inversify";
 
-class CommentsRepository implements ICommentsRepository {
+@injectable()
+export class CommentsRepository implements ICommentsRepository {
     async updateCommentById(id: string, input: CommentUpdateModel): Promise<boolean> {
         const res: UpdateResult = await CommentModel.updateOne({_id: new ObjectId(id)}, {$set: input}).exec();
         return res.modifiedCount > 0;
@@ -20,5 +22,3 @@ class CommentsRepository implements ICommentsRepository {
         await CommentModel.deleteMany({});
     }
 }
-
-export const commentsRepository = new CommentsRepository();

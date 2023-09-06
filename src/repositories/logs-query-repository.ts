@@ -2,9 +2,11 @@ import {Log} from "../types";
 import fs from "fs";
 import {ensureLogsExist, logsNormalize, logsPath} from "../utils/withMongoLogger";
 import {ILogsQueryRepository} from "../types/repository";
+import {injectable} from "inversify";
 
 
-class LogsQueryRepository implements ILogsQueryRepository {
+@injectable()
+export class LogsQueryRepository implements ILogsQueryRepository {
     async getAll(): Promise<Log[]> {
         return new Promise<Log[]>((resolve, reject) => {
             ensureLogsExist();
@@ -16,5 +18,3 @@ class LogsQueryRepository implements ILogsQueryRepository {
         })
     }
 }
-
-export const logsQueryRepository = new LogsQueryRepository();

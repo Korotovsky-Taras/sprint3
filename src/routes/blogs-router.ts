@@ -1,30 +1,32 @@
-import {blogsRouterController} from "../controllers/BlogsRouterController";
+import {BlogsRouterController} from "../controllers/BlogsRouterController";
 import {authBasicValidation} from "../middlewares/auth-basic-validation";
 import {blogsCreationValidator} from "../middlewares/blogs-validation";
 import {IBlogsRouterController, Route, RouterMethod} from "../types";
 import {postCreationValidator} from "../middlewares/posts-validation";
 import {authTokenAccessValidation} from "../middlewares/auth-token-access-validation";
+import {ioc} from "../ioc.config";
 
+const controller = ioc.resolve<IBlogsRouterController>(BlogsRouterController);
 
 export const blogsRoute: Route<IBlogsRouterController> = {
     route: "/blogs",
     method: RouterMethod.GET,
-    controller: blogsRouterController,
-    action: blogsRouterController.getAll,
+    controller: controller,
+    action: controller.getAll,
 }
 
 const blogSingleRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id",
     method: RouterMethod.GET,
-    controller: blogsRouterController,
-    action: blogsRouterController.getBlog,
+    controller: controller,
+    action: controller.getBlog,
 }
 
 const blogPostsRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id/posts",
     method: RouterMethod.GET,
-    controller: blogsRouterController,
-    action: blogsRouterController.getBlogPosts,
+    controller: controller,
+    action: controller.getBlogPosts,
     middlewares: [
         authTokenAccessValidation(false)
     ]
@@ -33,8 +35,8 @@ const blogPostsRoute: Route<IBlogsRouterController> = {
 const blogPostCreationRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id/posts",
     method: RouterMethod.POST,
-    controller: blogsRouterController,
-    action: blogsRouterController.createBlogPost,
+    controller: controller,
+    action: controller.createBlogPost,
     middlewares: [
         authBasicValidation,
         postCreationValidator
@@ -44,8 +46,8 @@ const blogPostCreationRoute: Route<IBlogsRouterController> = {
 const blogSingleUpdateRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id",
     method: RouterMethod.PUT,
-    controller: blogsRouterController,
-    action: blogsRouterController.updateBlog,
+    controller: controller,
+    action: controller.updateBlog,
     middlewares: [
         authBasicValidation,
         blogsCreationValidator
@@ -55,8 +57,8 @@ const blogSingleUpdateRoute: Route<IBlogsRouterController> = {
 const blogsCreationRoute: Route<IBlogsRouterController> = {
     route: "/blogs",
     method: RouterMethod.POST,
-    controller: blogsRouterController,
-    action: blogsRouterController.createBlog,
+    controller: controller,
+    action: controller.createBlog,
     middlewares: [
         authBasicValidation,
         blogsCreationValidator
@@ -66,8 +68,8 @@ const blogsCreationRoute: Route<IBlogsRouterController> = {
 const blogsDeletingRoute: Route<IBlogsRouterController> = {
     route: "/blogs/:id",
     method: RouterMethod.DELETE,
-    controller: blogsRouterController,
-    action: blogsRouterController.deleteBlog,
+    controller: controller,
+    action: controller.deleteBlog,
     middlewares: [
         authBasicValidation,
     ]

@@ -1,11 +1,14 @@
+import "reflect-metadata";
+
 import {Blog, BlogMongoModel, WithPagination, WithPaginationQuery} from "../types";
 import {BlogModel} from "./models/Blog";
 import {FilterQuery} from "mongoose";
 import {withModelPagination} from "./utils/withModelPagination";
 import {IBlogsQueryRepository} from "../types/repository";
+import {injectable} from "inversify";
 
-
-class BlogsQueryRepository implements IBlogsQueryRepository {
+@injectable()
+export class BlogsQueryRepository implements IBlogsQueryRepository {
     async getBlogs<T>(query: WithPaginationQuery<Blog> & {searchNameTerm: string | null}, dto: (blog: BlogMongoModel[]) => T[]): Promise<WithPagination<T>> {
         let filter: FilterQuery<Blog> = {};
         if (query.searchNameTerm != null) {
@@ -21,5 +24,3 @@ class BlogsQueryRepository implements IBlogsQueryRepository {
         return null
     }
 }
-
-export const blogsQueryRepository = new BlogsQueryRepository();
